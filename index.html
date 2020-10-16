@@ -75,10 +75,10 @@
             zoom: 12
         });
 
-        var defaultBase = L.tileLayer.provider('Stamen.TonerLite').addTo(map);
+        var defaultBase = L.tileLayer.provider('OpenStreetMap.Mapnik').addTo(map);
 
         var baseLayers = {
-            'Stamen Toner': defaultBase,
+            'OSM.M': defaultBase,
             'USGS TNM': L.tileLayer.provider('USGSTNM'),
             'ESRI Imagery': L.tileLayer.provider('Esri.WorldImagery'),
             'ESRI Ocean Basemap': L.tileLayer.provider('Esri.OceanBasemap'),
@@ -186,9 +186,11 @@
         }).addTo(map);
 
         // Overview mini map
-        var Esri_WorldTopoMap = L.tileLayer.provider('Stamen.TonerLite');
+        var minimap_new = L.tileLayer.provider('Stamen.TonerLite', {
+            zoom: 16
+        });
 
-        var miniMap = new L.Control.MiniMap(Esri_WorldTopoMap, {
+        var miniMap = new L.Control.MiniMap(minimap_new, {
             toggleDisplay: true,
             minimized: false,
             position: 'bottomleft'
