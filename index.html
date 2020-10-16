@@ -72,17 +72,17 @@
     <script>
         var map = L.map('map', {
             center: [33.976203, -118.265839], // LA, CA
-            zoom: 16
+            zoom: 10
         });
 
-        var defaultBase = L.tileLayer.provider('Stamen.TonerLite').addTo(map);
+        var defaultBase = L.tileLayer.provider('OpenTopoMap').addTo(map);
 
         var baseLayers = {
-            'Stamen Toner': defaultBase,
+            // 'Stamen Toner': defaultBase,
             'USGS TNM': L.tileLayer.provider('USGSTNM'),
             'ESRI Imagery': L.tileLayer.provider('Esri.WorldImagery'),
             'ESRI Ocean Basemap': L.tileLayer.provider('Esri.OceanBasemap'),
-            'OSM Topo': L.tileLayer.provider('OpenTopoMap')
+            'OSM Topo': defaultBase
         };
 
         //ESRI ArcGIS layers from Hawaii GIS Program; dynamic layer example
