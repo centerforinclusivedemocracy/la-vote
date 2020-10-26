@@ -1,0 +1,190 @@
+/* map */
+body {
+    padding: 0;
+    margin: 0;
+}
+html, body, #map {
+    height: 100%;
+    width: 100%;
+}
+
+/* info for visualizations */
+
+/* .info {
+    padding: 6px 8px;
+    font: 14px/16px Arial, Helvetica, sans-serif;
+    background: white;
+    background: rgba(255,255,255,0.8);
+    box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    border-radius: 5px;
+}
+.info h4 {
+    margin: 0 0 5px;
+    color: #777;
+} */
+
+/* infobox */
+
+/* .infobox .infobox-title { */
+    /* text-align: left;
+    margin-top: 1px;
+    margin-bottom: 5px;
+    font-weight: bold;
+    font-size: 90%; */
+    /* position: absolute; 
+    z-index:9999; 
+    border:2px solid grey; 
+    width: 450px; 
+    background-color:rgba(255, 255, 255, 0.8);
+    border-radius:6px; 
+    padding: 2px; 
+    font-size:14px; 
+    right: 20px; 
+    bottom: 20px */
+    /* } */
+
+/* legend */
+
+.maplegend .legend-title {
+    text-align: left;
+    margin-bottom: 5px;
+    font-weight: bold;
+    font-size: 90%;
+    }
+  .maplegend .legend-scale ul {
+    margin: 0;
+    /* margin-bottom: 5px; */
+    padding: 0;
+    float: left;
+    list-style: none;
+    }
+  .maplegend .legend-scale ul li {
+    font-size: 80%;
+    list-style: none;
+    margin-left: 0;
+    line-height: 18px;
+    /* margin-bottom: 2px; */
+    }
+  .maplegend ul.legend-labels li span {
+    display: block;
+    float: left;
+    height: 16px;
+    width: 40px;
+    margin-right: 5px;
+    margin-left: 2;
+    border: 1px solid #999;
+    }
+  .maplegend .legend-source {
+    font-size: 80%;
+    color: #777;
+    clear: both;
+    }
+  .maplegend a {
+    color: #777;
+    }
+
+/* horizonal line break */
+
+hr { 
+    color:#777;
+    display: block;
+    padding: 0 !important;
+    margin: 2px !important;
+    border-style: inset;
+    border-width: 1px;
+
+} 
+
+/* leaflet layer control */
+
+.leaflet-control-layers-toggle:after{ 
+    content:"your text"; 
+    color:#000 ;
+}
+.leaflet-control-layers-toggle{ 
+    width:auto;
+    background-position:3px 50% ;
+    padding:3px;
+    padding-left:36px;
+    text-decoration:none;
+    line-height:36px;
+
+}
+
+/* icons */
+
+ .marker-pin {
+    width: 30px;
+    height: 30px;
+    border-radius: 50% 50% 50% 0;
+    background: #c30b82;
+    position: absolute;
+    transform: rotate(-45deg);
+    left: 50%;
+    top: 50%;
+    margin: -15px 0 0 -15px;
+  }
+  .marker-pin2 {
+    width: 30px;
+    height: 30px;
+    border-radius: 50% 50% 50% 0;
+    background: #c30b82;
+    position: absolute;
+    transform: rotate(-45deg);
+    left: 50%;
+    top: 50%;
+    margin: -15px 0 0 -15px;
+  }
+  /* // to draw white circle */
+  .marker-pin::after {
+      content: '';
+      width: 24px;
+      height: 24px;
+      margin: 3px 0 0 3px;
+      background: #fff;
+      position: absolute;
+      border-radius: 50%;
+      opacity: .9;
+   }
+
+   .marker-pin2::after {
+    content: '';
+    width: 24px;
+    height: 24px;
+    margin: 3px 0 0 3px;
+    background: #fff;
+    position: absolute;
+    border-radius: 50%;
+    opacity: .5;
+ }
+  /* // to align icon */
+  .four i {
+     position: absolute;
+     width: 22px;
+     font-size: 22px;
+     left: 0;
+     right: 0;
+     margin: 10px auto;
+     text-align: center;
+  }
+
+ .four i.awesome {
+    margin: 12px auto;
+    font-size: 17px;
+ }
+   /* // to align icon */
+.eleven i {
+    position: absolute;
+    width: 22px;
+    font-size: 22px;
+    left: 0;
+    right: 0;
+    margin: 10px auto;
+    text-align: center;
+ }
+
+.eleven i.awesome {
+   margin: 12px auto;
+   font-size: 17px;
+}
+
