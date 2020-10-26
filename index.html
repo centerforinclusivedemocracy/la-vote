@@ -128,7 +128,7 @@ var polygons = L.geoJson(la, {
     onEachFeature: onEachFeature
 }).bindTooltip(function (layer) { 
   return '<b>Precinct: </b>'+layer.feature.properties.precinct+
-  '<br><b>Percent of Registered Voters Casting Ballots: </b>'+layer.feature.properties.pctvote+'%'+
+  '<br><b>Percent of Registered Voters Casting Ballots: </b>'+layer.feature.properties["Percent Votes Cast"]+
   '<br><b>Vote By Mail Ballots Cast: </b>'+layer.feature.properties["Percent VBM"]+
   '<br><b>In Person Live Ballots Cast: </b>'+layer.feature.properties["Percent Poll"]+
   '<br><b>Total Votes Cast: </b>'+layer.feature.properties["Total Votes"]+
@@ -227,7 +227,7 @@ var geojsonLayer = L.geoJson(vctest, {
 
 var controlLayers = L.control.layers(null,null,{collapsed:false}).addTo(map);
 
-controlLayers.addOverlay(geojsonLayer, 'View Vote Centers');
+controlLayers.addOverlay(geojsonLayer, 'Select Vote Center Layer');
 
 </script>
 
@@ -283,7 +283,7 @@ controlLayers.addOverlay(geojsonLayer, 'View Vote Centers');
   <div class='legend-title'> 
       <h3 align="center" style="font-size:20px"><b>Los Angeles County Early Ballot<br>Count by Precinct and Vote Center</b></h3>
       <h4 align="center" style="font-size:15px"><b>2020 General Election</b></h4>
-      <h5 align="center"style="font-size:12px">Last Updated: 6 pm on 10/25/2020</h5> 
+      <h5 align="center"style="font-size:12px">Last Updated: 11 am on 10/26/2020</h5> 
   </div>
   </div>
 
