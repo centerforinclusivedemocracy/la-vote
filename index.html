@@ -62,8 +62,8 @@
 
 <!-- Call the Leaflet JavaScript functions -->
 
-<script type="text/javascript" src="la_precincts_test.geojson"></script>
-<script type="text/javascript" src="vote_centers_test.geojson"></script>
+<script type="text/javascript" src="la_precincts.geojson"></script>
+<script type="text/javascript" src="vote_centers.geojson"></script>
 <script type="text/javascript">  
 
     var map = L.map(
@@ -128,11 +128,12 @@ var polygons = L.geoJson(la, {
     onEachFeature: onEachFeature
 }).bindTooltip(function (layer) { 
   return '<b>Precinct: </b>'+layer.feature.properties.precinct+
-  '<br><b>Percent of Registered Voters Casting Ballots: </b>'+layer.feature.properties["Percent Votes Cast"]+
-  '<br><b>Vote By Mail Ballots Cast: </b>'+layer.feature.properties["Percent VBM"]+
-  '<br><b>In Person Live Ballots Cast: </b>'+layer.feature.properties["Percent Poll"]+
+  '<br><b>Total Registered Voters: </b>'+layer.feature.properties["Number of Active Voters"]+
   '<br><b>Total Votes Cast: </b>'+layer.feature.properties["Total Votes"]+
-  '<br><b>Total Registered Voters: </b>'+layer.feature.properties["Number of Active Voters"]    
+  '<br><b>Percent of Registered Voters Casting Ballots: </b>'+layer.feature.properties["Percent Votes Cast"]+
+  '<br><b>Percent of All Ballots Cast by Mail: </b>'+layer.feature.properties["Percent Mail"]+
+  '<br><b>Percent of All Ballots Cast by Drop Box: </b>'+layer.feature.properties["Percent Drop Box"]+
+  '<br><b>Percent of All Ballots Cast In-Person: </b>'+layer.feature.properties["Percent Poll"]
 }).addTo(map);
 
 function highlightFeature(e) {
