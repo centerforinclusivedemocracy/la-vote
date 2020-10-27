@@ -222,7 +222,7 @@ var geojsonLayer = L.geoJson(vc, {
     onEachFeature: function (feature, layer) {
         layer.bindPopup('<b>Vote Center Location:</b>'+
         '<br>'+feature.properties["Address"]+
-        '<br><b>Number of Votes Cast</b>: '+feature.properties["Number of Votes Accepted"]);
+        '<br><b>Number of In-person Votes Cast</b>: '+feature.properties["Number of Votes Accepted"]);
     }
 });
 
