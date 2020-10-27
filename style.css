@@ -8,44 +8,30 @@ html, body, #map {
     width: 100%;
 }
 
-/* info for visualizations */
-
-/* .info {
+/* info box */
+.info {
     padding: 6px 8px;
-    font: 14px/16px Arial, Helvetica, sans-serif;
+    text-align:right;
+    color: #777;
+    /* font: 12px/14px Helvetica, serif; */
+    font: 12px/14px Helvetica, serif;
     background: white;
     background: rgba(255,255,255,0.8);
     box-shadow: 0 0 15px rgba(0,0,0,0.2);
     border-radius: 5px;
+    border: 2px solid #999;
+    top: -50px;
 }
-.info h4 {
+.info h5 {
     margin: 0 0 5px;
-    color: #777;
-} */
-
-/* infobox */
-
-/* .infobox .infobox-title { */
-    /* text-align: left;
-    margin-top: 1px;
-    margin-bottom: 5px;
     font-weight: bold;
-    font-size: 90%; */
-    /* position: absolute; 
-    z-index:9999; 
-    border:2px solid grey; 
-    width: 450px; 
-    background-color:rgba(255, 255, 255, 0.8);
-    border-radius:6px; 
-    padding: 2px; 
-    font-size:14px; 
-    right: 20px; 
-    bottom: 20px */
-    /* } */
+    color: rgb(0, 0, 0);
+}
 
 /* legend */
 
 .maplegend .legend-title {
+    font: Helvetica, serif;
     text-align: left;
     margin-bottom: 5px;
     font-weight: bold;
@@ -95,23 +81,7 @@ hr {
 
 } 
 
-/* leaflet layer control */
-
-.leaflet-control-layers-toggle:after{ 
-    content:"your text"; 
-    color:#000 ;
-}
-.leaflet-control-layers-toggle{ 
-    width:auto;
-    background-position:3px 50% ;
-    padding:3px;
-    padding-left:36px;
-    text-decoration:none;
-    line-height:36px;
-
-}
-
-/* icons */
+/* VC icons */
 
  .marker-pin {
     width: 30px;
@@ -188,3 +158,18 @@ hr {
    font-size: 17px;
 }
 
+/* Leaflet box controls */
+.leaflet-control-layers {
+    position: absolute;
+    right: 40px;
+    /* top: -107.5px; */
+    top: -94px;
+    height: 40px !important;
+    vertical-align: middle;
+    }
+
+.leaflet-control-layers-selector {
+	margin-top: 2px;
+	position: relative;
+	top: 2px !important;
+	}
