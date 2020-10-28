@@ -54,6 +54,7 @@ def process_precincts(precincts_shape, registered_voters, voters, output_loc, re
 
     Args:
     precincts_shape (str): File location for precincts shapefile
+        (filename: "registrar_precincts_4326.shp").
     registered_voters (str): File location for registered voter data 
         (filename: "1- Count of registered voters by precinct.csv")
     voters (str): File location for registered voter data 
@@ -122,10 +123,7 @@ def process_precincts(precincts_shape, registered_voters, voters, output_loc, re
     for col in cols:
         df[col] = df.loc[df['Number of Active Voters'].notnull(), col].fillna(0)
     df['pctvote'] = round((df['Total Votes']/df['Number of Active Voters'])*100, 2)
-    # print number of precincts dropped from data with more voters than registered voters
-    # before dropping these precincts
-    print(
-        'Number of precincts dropped with more voters than registered voters:',
+    print('Number of precincts dropped with more voters than registered voters:',
         str(len(df.loc[df['pctvote'] > 100])))
     # alternatively set pct vote to na for these tracts if we want to keep the data
     # but not have it affect the color mapping
@@ -204,13 +202,14 @@ def process_precincts(precincts_shape, registered_voters, voters, output_loc, re
     gdf.to_file(f'{output_loc}/precincts/la_precincts_{today}_{time}.geojson', driver='GeoJSON')
 
 
-def process_votecenters(votecenter_shape, votecenter_voters, votecenter_alloc, output_loc):
+def process_votecenters(votecenter_gjson, votecenter_voters, votecenter_alloc, output_loc):
     """
     Process vote center data for LA county and output geojson to be used in 
     leaflet map.
 
     Args:
-    votecenter_shape (str): File location for vote centers shapefile.
+    votecenter_gjson (str): File location for vote centers geojson 
+        (filename: "vote_centers_locs.geojson")
     votecenter_voters (str): File location for vote centers voting data 
         (filename: "3- Count of in-person ballots cast for each vote center 
         with VBM return method_LA.csv")
@@ -219,7 +218,7 @@ def process_votecenters(votecenter_shape, votecenter_voters, votecenter_alloc, o
     output_loc (str): Directory location for output geojson file.
     """
     # read in vote center shapefile and voter data
-    vc_gdf = gpd.read_file(votecenter_shape, driver='GeoJSON')
+    vc_gdf = gpd.read_file(votecenter_gjson, driver='GeoJSON')
     vc = pd.read_csv(votecenter_voters)
     vc_alloc = pd.read_excel(votecenter_alloc)
     # sum vote totals by vote center across all days
