@@ -9,4 +9,4 @@ votecenter_voters = r'C:\Users\karmijo\Documents\precincts_mapping\data\final_da
 votecenter_alloc = r'C:\Users\karmijo\Documents\precincts_mapping\data\final_data\most_recent\LA Vote Center_allocations_20201027.xlsx'
 
 process_precincts(precincts_shape, registered_voters, voters, output_loc, reduce_file=True, places=6)
-process_votecenters(votecenter_shape, votecenter_voters, votecenter_alloc, output)
+process_votecenters(votecenter_shape, votecenter_voters, votecenter_alloc, output_loc)
