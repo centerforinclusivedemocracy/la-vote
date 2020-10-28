@@ -173,9 +173,13 @@ function vc_style(feature, latlng) {
 var geojsonLayer = L.geoJson(vc, {
     pointToLayer: vc_style,
     onEachFeature: function (feature, layer) {
-        layer.bindPopup('<b>Vote Center Location:</b>'+
-        '<br>'+feature.properties["Address"]+
-        '<br><b>Number of In-person Votes Cast</b>: '+feature.properties["Number of Votes Accepted"]);
+        layer.bindPopup('<b>Number of In-Person Votes Cast</b>: '+
+        feature.properties["Number of Votes Accepted"]+
+        '<br><b>Vote Center Location:</b>'+'<br>'+feature.properties["Address"]+
+        '<br><b>Vote Center Size: </b>'+feature.properties.size+'*'+
+        '<br><b>Number of E-Poll Books Available: </b>'+feature.properties.epoll_allocated+'*'+
+        '<br><b>Number of Ballot Marking Devices Available: </b>'+feature.properties.bmd_allocated+'*'+
+        '<br><em>*Data provided by the Los Angeles County Registrar</em>');
     }
 });
 
