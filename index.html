@@ -200,8 +200,8 @@ info.onAdd = function (map) {
 info.update = function (props) {
     this._div.innerHTML = 
         '<h5>LA County Ballot Data</h5>' +
-        'Total Registered Voters in LA County: <span style="color:#800000";><b>'+la.features[la.features.length-1].properties["Number of Active Voters"]+'</span></b><br>'+
-        'Total Votes Cast in LA County: <span style="color:#800000";><b>'+la.features[la.features.length-1].properties["Total Votes"]+'</span></b><br>'+
+        'Total Registered Voters: <span style="color:#800000";><b>'+la.features[la.features.length-1].properties["Number of Active Voters"]+'</span></b><br>'+
+        'Total Votes Cast: <span style="color:#800000";><b>'+la.features[la.features.length-1].properties["Total Votes"]+'</span></b><br>'+
         'Percent of Registered Voters Casting Ballots: <span style="color:#800000";><b>'+la.features[la.features.length-1].properties["Percent Votes Cast"]+'</span></b><br>'+
         'Percent of All Ballots Cast by Mail: <span style="color:#800000";><b>'+la.features[la.features.length-1].properties["Percent Mail"]+'</span></b><br>'+
         'Percent of All Ballots Cast by Drop Box: <span style="color:#800000";><b>'+la.features[la.features.length-1].properties["Percent Drop Box"]+'</span></b><br>'+
