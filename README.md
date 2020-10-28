@@ -1,8 +1,15 @@
 # leaflet-map-example
 
-Some formatting notes: 
+When updating data: 
 
-- GeoJSON file needs to have `var la =` added before the first opening curly brace
+- Assign js variable to data in new GeoJSON files in the first line before the first opening curly brace:
+  
+  la_precincts.geojson: `var la = ` 
+  
+  vote_centers.geojson: `var vc = `
+- Edit line 314 of index.html to read when data was last updated (time provided in filename from Mindy):
+
+  `<h5 align="center"style="font-size:12px">Last Updated: 8:00 am on 10/28/2020</h5> `
 
 ### Data processing:
 To process precinct and vote center voting data for LA county and output data as geojsons to be used in CID's LA Vote map, run process_data.py, edited with your file locations for the following variables:
