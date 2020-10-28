@@ -5,7 +5,7 @@ import math
 from datetime import date, datetime
 from shapely.geometry import Point, Polygon
 
-def round_geojson(gdf, places=6, tolerance=0.0000005):
+def round_gdf(gdf, places=6, tolerance=0.0000005):
     """
     Takes in a geopandas dataframe and rounds coordinates to the specified 
     number of decimal places using round_polygon() and simplifies geometry 
@@ -180,7 +180,7 @@ def process_precincts(precincts_shape, registered_voters, voters, output_loc, re
     gdf[['Number of Active Voters', 'Total Votes', 'Percent Votes Cast', 'Percent Mail', 'Percent Drop Box', 'Percent Poll']] = gdf[['Number of Active Voters', 'Total Votes', 'Percent Votes Cast', 'Percent Mail', 'Percent Drop Box', 'Percent Poll']].fillna('n/a')
     # round coordinate decimals and simplify geometry if reducing file size
     if reduce_file == True: 
-        gdf = round_geojson(gdf)
+        gdf = round_gdf(gdf)
     # append county level data
     gdf = gdf.append({
         'Number of Active Voters' : reg_voters,
@@ -196,7 +196,7 @@ def process_precincts(precincts_shape, registered_voters, voters, output_loc, re
     gdf.to_file(f'{output_loc}/precincts/la_precincts_{today}_{time}.geojson', driver='GeoJSON')
 
 
-def process_votecenters(votecenter_shape, votecenter_voters, output):
+def process_votecenters(votecenter_shape, votecenter_voters, votecenter_alloc, output):
     """
     Process vote center data for LA county and output geojson to be used in 
     leaflet map.
@@ -206,22 +206,45 @@ def process_votecenters(votecenter_shape, votecenter_voters, output):
     votecenter_voters (str): File location for vote centers voting data 
         (filename: "3- Count of in-person ballots cast for each vote center 
         with VBM return method_LA.csv")
+    votecenter_alloc (str): File location for vote centers allocation data
+        (filename: "LA Vote Center_allocations_20201027.xlsx")
     output_loc (str): Directory location for output geojson file.
     """
     # read in vote center shapefile and voter data
     vc_gdf = gpd.read_file(votecenter_shape, driver='GeoJSON')
     vc = pd.read_csv(votecenter_voters)
+    vc_alloc = pd.read_excel(votecenter_alloc)
     # sum vote totals by vote center across all days
     vc = vc.groupby(['Vote Location Name', 'Vote Location Address'], as_index=False).sum()
+    vc.head()
     # join shapefile and voter data
-    merged = vc_gdf.merge(vc, on='Name', how='outer')
-    # print the number of mismatched vote centers
-    print("Number of Vote Centers without a match", len(merged[merged['Address'].isna()]))
+    merged = vc_gdf.merge(vc, left_on='Name', right_on='Vote Location Name', how='outer')
+    print("Number of Vote Centers with voting data without a match:", 
+        len(merged[merged['Address'].isna()]))
+    # join vote center allocation data with vote center shapes and vote data
+    vc_final = merged.merge(
+        vc_alloc, 
+        left_on='Vote Location Id', 
+        right_on='vote_center_sos_id', 
+        how='outer')
+    print('Number of Vote Centers with allocation data without a match:', 
+        len(vc_final[vc_final['County Id'].isna() & vc_final['Vote Location Name'].isna()]))
     # clean up data
-    merged = merged[['Name', 'Hours Of Operation', 'Address', '# of Votes accepted', 'Vote Center Type', 'geometry']]
-    merged.rename(columns={'# of Votes accepted' : 'Number of Votes Accepted'}, inplace=True)
-    merged['Number of Votes Accepted'] = merged['Number of Votes Accepted'].fillna(0)
-    merged['Name'] = merged['Name'].str.title()
+    vc_final = vc_final[['Name', 'Hours Of Operation', 'Address', '# of Votes accepted', 
+        'Vote Center Type', 'geometry', 'size', 'bmd_allocated', 'ePollBook_Allocated']]
+    vc_final.rename(columns={
+        '# of Votes accepted' : 'Number of Votes Accepted',
+        'ePollBook_Allocated' : 'epoll_allocated'
+    }, inplace=True)
+    vc_final['Number of Votes Accepted'] = vc_final['Number of Votes Accepted'].fillna(0)
+    vc_final['Name'] = vc_final['Name'].str.title()
+    vc_final['size'] = vc_final['size'].str.title()
     # write to geojson
     today = date.today()
-    merged.to_file(f'{output_loc}/vote_centers_{today}.geojson', driver='GeoJSON')
+    current_time = datetime.now().hour
+    if current_time > 12:
+        time = 'PM'
+    else:
+        time = 'AM'
+    vc_final.to_file(f'{output_loc}/vote_centers/vote_centers_{today}_{time}.geojson', 
+    driver='GeoJSON')
