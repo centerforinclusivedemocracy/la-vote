@@ -163,29 +163,37 @@ def process_precincts(precincts_shape, registered_voters, voters, output_loc, re
     # drop precincts with no precinct number
     # these are precincts with voter data that doesn't match a precinct shape
     gdf = gdf[~gdf['precinct'].isna()]
+    # create county level summary variables
+    # hardcode in styling - in the future take this out and style in js
+    pct = str(round((gdf['Total Votes'].sum()/gdf['Number of Active Voters'].sum())*100, 2)) + '%'
+    reg_voters = str("{:,}".format(gdf['Number of Active Voters'].sum())).split('.')[0]
+    voters = str("{:,}".format(gdf['Total Votes'].sum())).split('.')[0]
+    mail = str("{:,}".format(gdf['Mail'].sum())).split('.')[0]
+    pct_mail = str(round((gdf['Mail'].sum()/gdf['Total Votes'].sum())*100, 2)) + '% (' + mail + ')'
+    db = str("{:,}".format(gdf['Drop Box'].sum())).split('.')[0]
+    pct_db = str(round((gdf['Drop Box'].sum()/gdf['Total Votes'].sum())*100, 2)) + '% (' + db + ')'
+    pct_poll = str(round((gdf['In Person Live Ballot'].sum()/gdf['Total Votes'].sum())*100, 2)) + '% (' + str(gdf['In Person Live Ballot'].sum()) + ')'
+    poll = str("{:,}".format(gdf['In Person Live Ballot'].sum())).split('.')[0]
+    pct_poll = str(round((gdf['In Person Live Ballot'].sum()/gdf['Total Votes'].sum())*100, 2)) + '% (' + poll + ')'
     # reduce the number of columns in gdf to minimize output file size
     gdf = gdf[['precinct', 'geometry', 'Number of Active Voters', 'Total Votes',
             'pctvote', 'Percent Votes Cast', 'Percent Mail', 'Percent Drop Box', 
             'Percent Poll']]
-    # create county level summary variables
-    # hardcode in styling - in the future take this out and style in js
-    reg_voters = gdf['Number of Active Voters'].sum()
-    voters = gdf['Total Votes'].sum() 
-    pct = str(round((voters/reg_voters)*100, 2)) + '%'
-    reg_voters = str("{:,}".format(reg_voters)).split('.')[0]
-    voters = str("{:,}".format(voters)).split('.')[0]
     # hardcode how nan and int values are displayed - in the future style in js
     gdf['Number of Active Voters'] = gdf['Number of Active Voters'].astype(str).replace('nan', 'n/a').str.split('.').str[0]
     gdf['Total Votes'] = gdf['Total Votes'].astype(str).replace('nan', 'n/a').str.split('.').str[0]
     gdf[['Number of Active Voters', 'Total Votes', 'Percent Votes Cast', 'Percent Mail', 'Percent Drop Box', 'Percent Poll']] = gdf[['Number of Active Voters', 'Total Votes', 'Percent Votes Cast', 'Percent Mail', 'Percent Drop Box', 'Percent Poll']].fillna('n/a')
     # round coordinate decimals and simplify geometry if reducing file size
-    if reduce_file == True: 
+    if reduce_file == True:
         gdf = round_gdf(gdf)
     # append county level data
     gdf = gdf.append({
         'Number of Active Voters' : reg_voters,
         'Total Votes' : voters,
-        'Percent Votes Cast' : pct,}, ignore_index=True)
+        'Percent Votes Cast' : pct,
+        'Percent Mail' : pct_mail,
+        'Percent Drop Box' : pct_db,
+        'Percent Poll' : pct_poll}, ignore_index=True)
     # write to geojson with date and time in filename
     today = date.today()
     current_time = datetime.now().hour
