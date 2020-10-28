@@ -196,7 +196,7 @@ def process_precincts(precincts_shape, registered_voters, voters, output_loc, re
     gdf.to_file(f'{output_loc}/precincts/la_precincts_{today}_{time}.geojson', driver='GeoJSON')
 
 
-def process_votecenters(votecenter_shape, votecenter_voters, votecenter_alloc, output):
+def process_votecenters(votecenter_shape, votecenter_voters, votecenter_alloc, output_loc):
     """
     Process vote center data for LA county and output geojson to be used in 
     leaflet map.
