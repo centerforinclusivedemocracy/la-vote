@@ -1,4 +1,4 @@
-# leaflet-map-example
+# leaflet-map
 
 When updating data: 
 
