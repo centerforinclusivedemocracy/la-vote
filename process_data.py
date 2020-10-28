@@ -1,4 +1,4 @@
-from lavote_data_processing import round_geojson, round_polygon, process_precincts, process_votecenters
+from lavote_data_processing import round_gdf, round_polygon, process_precincts, process_votecenters
 
 precincts_shape = r'C:\Users\karmijo\Documents\precincts_mapping\data\final_data\registrar_precincts_4326\registrar_precincts.shp'
 registered_voters = r'C:\Users\karmijo\Documents\precincts_mapping\data\final_data\most_recent\1- Count of registered voters by precinct.csv'
