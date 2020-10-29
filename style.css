@@ -12,25 +12,14 @@ html, body, #map {
 .info {
     padding: 6px 8px;
     position: relative;
-    width: 325px;
+    text-align:right;
     color: #777;
     font: 12px/14px Helvetica, serif;
     background: white;
     background: rgba(255,255,255,0.8);
     box-shadow: 0 0 15px rgba(0,0,0,0.2);
     border-radius: 5px;
-    top: -50px;
     border: 2px solid #999;
-    line-height: 13pt;
-    clear: both;
-}
-
-.alignright {
-    float: right;
-}
-
-.alignleft {
-    float: left;
 }
 .info h5 {
     margin: 0 0 5px;
