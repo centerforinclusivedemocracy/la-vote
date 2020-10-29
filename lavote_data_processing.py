@@ -108,7 +108,10 @@ def process_precincts(precincts_shape, registered_voters, voters, output_loc, re
         'Drop Box']].fillna(value=0)
     join['Total Votes'] = join['Mail'] + join['Drop Box'] + join['In Person Live Ballot']
 
-    # merge voting data and registered voter data
+    # merge voting data and registered voter data after first formatting 
+    # precinct number
+    reg['Voter Precinct Number'] = reg['Voter Precinct Number'].astype(str).apply(lambda x: x.replace(".", "").replace("-", ""))
+    join['PrecinctNumber'] = join['PrecinctNumber'].astype(str).apply(lambda x: x.replace(".", "").replace("-", ""))
     df = reg.merge(
         join, 
         left_on='Voter Precinct Number', 
@@ -117,7 +120,6 @@ def process_precincts(precincts_shape, registered_voters, voters, output_loc, re
         suffixes=(None, '_voter'))
     # clean up data
     df.rename(columns = {'# of Active Voters' : 'Number of Active Voters'},inplace=True)
-    df['PrecinctNumber'] = df['PrecinctNumber'].astype(str).apply(lambda x: x.replace(".", "").replace("-", ""))
     # add percent votes variable, first filling nas with 0s in registered voter and voter cols
     cols = ['Total Votes', 'Mail', 'In Person Live Ballot', 'Drop Box']
     for col in cols:
@@ -145,6 +147,7 @@ def process_precincts(precincts_shape, registered_voters, voters, output_loc, re
                 df.at[idx, new_cols[i]] = str(pct) + '%'
             else:
                 df.at[idx, new_cols[i]] = str(pct) + '% (' + str(int(row[col])) + ')'
+    df['precinct'] = np.where(df['PrecinctNumber'].notnull(), df['PrecinctNumber'], df['Voter Precinct Number'])
                 
     # setup spatial data
     # join processed precinct data with precinct shapefile
@@ -153,14 +156,14 @@ def process_precincts(precincts_shape, registered_voters, voters, output_loc, re
         prec.merge(
             df, 
             left_on='PRECINCT',
-            right_on='PrecinctNumber',
+            right_on='precinct',
             how='outer'
         ), 
         geometry='geometry')
-    gdf.rename(columns = {'PRECINCT' : 'precinct'}, inplace = True)
     # drop precincts with no precinct number
-    # these are precincts with voter data that doesn't match a precinct shape
-    gdf = gdf[~gdf['precinct'].isna()]
+    # this should just be one precinct
+    print('Number of precincts dropped without a valid precinct number:', len(gdf[gdf['PRECINCT'].isna()]))
+    gdf = gdf[~gdf['PRECINCT'].isna()]
     # create county level summary variables
     # hardcode in styling - in the future take this out and style in js
     pct = str(round((gdf['Total Votes'].sum()/gdf['Number of Active Voters'].sum())*100, 2)) + '%'
@@ -174,9 +177,10 @@ def process_precincts(precincts_shape, registered_voters, voters, output_loc, re
     poll = str("{:,}".format(gdf['In Person Live Ballot'].sum())).split('.')[0]
     pct_poll = str(round((gdf['In Person Live Ballot'].sum()/gdf['Total Votes'].sum())*100, 2)) + '% (' + poll + ')'
     # reduce the number of columns in gdf to minimize output file size
-    gdf = gdf[['precinct', 'geometry', 'Number of Active Voters', 'Total Votes',
+    gdf = gdf[['PRECINCT', 'geometry', 'Number of Active Voters', 'Total Votes',
             'pctvote', 'Percent Votes Cast', 'Percent Mail', 'Percent Drop Box', 
             'Percent Poll']]
+    gdf.rename(columns = {'PRECINCT' : 'precinct'}, inplace = True)
     # hardcode how nan and int values are displayed - in the future style in js
     gdf['Number of Active Voters'] = gdf['Number of Active Voters'].astype(str).replace('nan', 'n/a').str.split('.').str[0]
     gdf['Total Votes'] = gdf['Total Votes'].astype(str).replace('nan', 'n/a').str.split('.').str[0]
