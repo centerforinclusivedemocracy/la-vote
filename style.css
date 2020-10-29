@@ -11,16 +11,27 @@ html, body, #map {
 /* info box */
 .info {
     padding: 6px 8px;
-    position: relative;
-    text-align:right;
+    width: 325px;
     color: #777;
+    /* font: 12px/14px Helvetica, serif; */
     font: 12px/14px Helvetica, serif;
     background: white;
     background: rgba(255,255,255,0.8);
     box-shadow: 0 0 15px rgba(0,0,0,0.2);
     border-radius: 5px;
     border: 2px solid #999;
+    top: -50px;
+    line-height: 13pt;
+    clear: both;
 }
+
+.alignleft {
+	float: left;
+}
+.alignright {
+	float: right;
+}
+
 .info h5 {
     margin: 0 0 5px;
     font-weight: bold;
@@ -130,10 +141,10 @@ hr {
   .four i {
      position: absolute;
      width: 22px;
-     font-size: 18px;
+     font-size: 22px;
      left: 0;
      right: 0;
-     margin: 12px auto;
+     margin: 10px auto;
      text-align: center;
   }
 
@@ -145,10 +156,10 @@ hr {
 .eleven i {
     position: absolute;
     width: 22px;
-    font-size: 18px;
+    font-size: 22px;
     left: 0;
     right: 0;
-    margin: 12px auto;
+    margin: 10px auto;
     text-align: center;
  }
 
@@ -157,74 +168,18 @@ hr {
    font-size: 17px;
 }
 
-.geocode {
-    border-radius: 5px;
-}
-  
-/* Leaflet EasyButton controls */
-#animated-marker-toggle { 
-    height: 30px !important; 
-    width: 200px !important; 
-    position: relative; 
-    font-size: 14px;
-    border-radius: 5px;
-}
-
-/* legend2 */
-.legend2 {
-    /* position: relative;
-    left: -1000px;
-    bottom: -417.5px; */
-    /* right: 150px;
-    bottom: -317.5px; */
-    line-height: 18px;
-	color: #333333;
-	font-family: 'Open Sans', Helvetica, sans-serif;
-	padding: 6px 8px;
-	background: white;
-	background: rgba(255,255,255,0.8);
-	box-shadow: 0 0 15px rgba(0,0,0,0.2);
-    border-radius: 5px;
-    border: 2px solid #999;
-}
-
-.legend2 i {
-	width: 14 !important;
-	height: 14!important;
-	float: left;
-	margin-right: 8px;
-	opacity: 0.7;
-}
-
-.legend2 img {
-	width: 14 !important;
-	height: 14 !important;
-	float: left;
-}
-
-.legend2 p {
-	font-size: 15px;
-	line-height: 18px;
-    margin: 0;
-}
-
-.legend2 .awesome {
-	size: 14 !important;
-
-}
-
-.leaflet-verticalcenter {
+/* Leaflet box controls */
+.leaflet-control-layers {
     position: absolute;
-    z-index: 1000;
-    pointer-events: none;
-    top: 73.5%; 
-    left: 10%;
-    /* transform: translateY(-50%);  */
-    padding-top: 10px;
-    margin-right: 150px;
-}
+    right: 40px;
+    /* top: -107.5px; */
+    top: -94px;
+    height: 40px !important;
+    vertical-align: middle;
+    }
 
-.leaflet-verticalcenter .leaflet-control {
-    margin-bottom: 10px;
-}
-
+.leaflet-control-layers-selector {
+	margin-top: 2px;
+	position: relative;
+	top: 2px !important;
+	}
