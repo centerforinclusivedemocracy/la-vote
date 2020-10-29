@@ -145,18 +145,18 @@ var geojsonLayer = L.geoJson(vc, {
     }
 });
 
-// Swtich function for VC 4day/11day icons to show 
+// Swtich function for VC 5day/11day icons to show 
 function vc_style(feature, latlng) {
     switch(feature.properties["Vote Center Type"]) {
-        case "4 Day":
-            var four_day = new L.divIcon({
-                className: 'four',
+        case "Five-Day":
+            var five_day = new L.divIcon({
+                className: 'five',
                     html: "<div style='background-color:#575556;' class='marker-pin'></div><i class='fa fa-building' style='color:#575556'></i>",
                     iconSize: [30, 42],
                     iconAnchor: [15, 42]
                 });
-            return L.marker(latlng, {icon: four_day});
-        case "11 Day":
+            return L.marker(latlng, {icon: five_day});
+        case "Eleven-Day":
             var eleven_day = new L.divIcon({
                 className: 'eleven',
                     html: "<div style='background-color:#4838cc;' class='marker-pin'></div><i class='fa fa-building' style='color:#4838cc'></i>",
@@ -189,7 +189,7 @@ var vclegend = L.control({position: 'verticalcenterright'});
 vclegend.onAdd = function(map){
     var div = L.DomUtil.create('container', 'legend2');
     div.innerHTML += "<div <span style='position: absolute;top: 2px;font-weight: bold;font-size: 12px;'>Vote Center Type</span></div>" + '<br>'
-	div.innerHTML += "<div <i class='fa fa-building fa-3x' style='color:#575556'></i></div>" + "<span style='font-weight: bold;position: relative;margin-bottom: 5px;'> Four-Day</span>" + '<br>'
+	div.innerHTML += "<div <i class='fa fa-building fa-3x' style='color:#575556'></i></div>" + "<span style='font-weight: bold;position: relative;margin-bottom: 5px;'> Five-Day</span>" + '<br>'
 	div.innerHTML += "<div <i class='fa fa-building fa-3x' style='color:#4838cc'></i></div>" + "<span style='font-weight: bold;position: relative;margin-bottom: 5px;'> Eleven-Day</span>" + '<br>'
     return div;
 };
@@ -239,7 +239,7 @@ var geocoder = L.Control.geocoder({
     .addTo(map);
 
 // Control that shows state info on hover
-var info = L.control();
+var info = L.control( {position: 'topleft'});
 
 info.onAdd = function (map) {
     this._div = L.DomUtil.create('div', 'info');
@@ -315,7 +315,7 @@ info.addTo(map);
   
   <div id='infobox' class='infobox'
    style='position: absolute; z-index:9999; border:2px solid grey; width: 500px; background-color:rgba(255, 255, 255, 0.8);
-  border-radius:6px; padding: 3px; font-size:14px; right: 13px; bottom: 20px;'
+  border-radius:6px; padding: 3px; font-size:12px; right: 13px; bottom: 20px;'
   >
        
   <div>
@@ -356,7 +356,7 @@ info.addTo(map);
   <div id='maplegend' class='maplegend' 
       style='position: absolute; z-index:9999; border:2px solid grey; background-color:rgba(255, 255, 255, 0.8);
        border-radius:6px; padding-top: 0px; padding-bottom:1px; padding-right:8px; padding-left:10px; font-size:14px; 
-       top: 20px; left: 20px;'>
+       top: 13px; left: 13px;'>
        
   <div class='legend-title'> 
       <h3 align="center" style="font-size:20px"><b>Los Angeles County Early Ballot<br>Count by Precinct and Vote Center</b></h3>

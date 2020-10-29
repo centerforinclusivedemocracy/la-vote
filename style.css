@@ -11,8 +11,10 @@ html, body, #map {
 /* info box */
 .info {
     padding: 6px 8px;
-    position: relative;
-    text-align:right;
+    position: absolute;
+    top: 130px;
+    left: 3px;
+    text-align:left;
     color: #777;
     font: 12px/14px Helvetica, serif;
     background: white;
@@ -36,6 +38,7 @@ html, body, #map {
     margin: 0 0 5px;
     font-weight: bold;
     color: rgb(0, 0, 0);
+    font-size: 15px;
 }
 
 /* legend */
@@ -138,7 +141,7 @@ hr {
     opacity: .5;
  }
   /* // to align icon */
-  .four i {
+  .five i {
      position: absolute;
      width: 22px;
      font-size: 18px;
@@ -148,7 +151,7 @@ hr {
      text-align: center;
   }
 
- .four i.awesome {
+ .five i.awesome {
     margin: 12px auto;
     font-size: 17px;
  }
@@ -189,18 +192,18 @@ hr {
     /* right: 150px;
     bottom: -317.5px; */
     line-height: 18px;
-	color: #333333;
-	font-family: 'Open Sans', Helvetica, sans-serif;
-	padding: 6px 8px;
-	background: white;
-	background: rgba(255,255,255,0.8);
-	box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    color: #333333;
+    font-family: 'Open Sans', Helvetica, sans-serif;
+    padding: 6px 8px;
+    background: white;
+    background: rgba(255,255,255,0.8);
+    box-shadow: 0 0 15px rgba(0,0,0,0.2);
     border-radius: 5px;
     border: 2px solid #999;
 }
 
 .legend2 i {
-	width: 14 !important;
+  width: 14 !important;
 	height: 14!important;
 	float: left;
 	margin-right: 8px;
