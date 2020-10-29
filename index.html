@@ -176,7 +176,6 @@ addControlPlaceholders(map);
 var vclegend = L.control({position: 'verticalcenterright'});
 vclegend.onAdd = function(map){
     var div = L.DomUtil.create('container', 'legend2');
-    div.innerHTML += "<div <span style='position: absolute;top: 2px;font-weight: bold;font-size: 12px;'>Vote Center Type</span></div>" + '<br>'
 	div.innerHTML += "<div <i class='fa fa-building fa-3x' style='color:#575556'></i></div>" + "<span style='font-weight: bold;position: relative;margin-bottom: 5px;'> Four-Day</span>" + '<br>'
 	div.innerHTML += "<div <i class='fa fa-building fa-3x' style='color:#4838cc'></i></div>" + "<span style='font-weight: bold;position: relative;margin-bottom: 5px;'> Eleven-Day</span>" + '<br>'
     return div;
