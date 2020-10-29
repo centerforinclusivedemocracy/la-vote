@@ -39,8 +39,6 @@
 <script src="https://cdn.jsdelivr.net/npm/leaflet-easybutton@2/src/easy-button.js"></script>
 </head> 
 
-</head> 
-
 <body>
 
 <!-- CID loading screen for webpage -->
@@ -132,6 +130,16 @@ var polygons = L.geoJson(la, {
 //   '<br><b>Percent of All Ballots Cast by Drop Box: </b>'+layer.feature.properties["Percent Drop Box"]+
 //   '<br><b>Percent of All Ballots Cast In-Person: </b>'+layer.feature.properties["Percent Poll"]
 // }).addTo(map);
+
+// Create VC layer and add popups with info
+var geojsonLayer = L.geoJson(vc, {
+    pointToLayer: vc_style,
+    onEachFeature: function (feature, layer) {
+        layer.bindPopup('<b>'+feature.properties["Vote Center Type"]+' Vote Center</b>'+
+        '<br><b>Vote Center Location:</b>'+feature.properties["Address"]+
+        '<br><b>Number of In-person Votes Cast</b>: '+feature.properties["Number of Votes Accepted"]);
+    }
+});
 
 // Swtich function for VC 4day/11day icons to show 
 function vc_style(feature, latlng) {
@@ -226,20 +234,6 @@ var geocoder = L.Control.geocoder({
     })
     .addTo(map);
 
-// Create VC layer and add popups with info
-var geojsonLayer = L.geoJson(vc, {
-    pointToLayer: vc_style,
-    onEachFeature: function (feature, layer) {
-        layer.bindPopup('<b>Number of In-Person Votes Cast</b>: '+
-        feature.properties["Number of Votes Accepted"]+
-        '<br><b>Vote Center Location:</b>'+'<br>'+feature.properties["Address"]+
-        '<br><b>Vote Center Size: </b>'+feature.properties.size+'*'+
-        '<br><b>Number of E-Poll Books Available: </b>'+feature.properties.epoll_allocated+'*'+
-        '<br><b>Number of Ballot Marking Devices Available: </b>'+feature.properties.bmd_allocated+'*'+
-        '<br><em>*Data provided by the Los Angeles County Registrar</em>');
-    }
-});
-
 // Control that shows state info on hover
 var info = L.control();
 
@@ -252,23 +246,23 @@ info.onAdd = function (map) {
 info.update = function (props) {
     this._div.innerHTML = 
         '<h5>LA County Ballot Data</h5>' +
-        '<span class="alignleft";>Total Registered Voters:</span><span style="color:#800000" class="alignright";><b>'+la.features[la.features.length-1].properties["Number of Active Voters"]+'</span></b><br>'+
-        '<span class="alignleft";>Total Votes Cast:</span><span style="color:#800000" class="alignright";><b>'+la.features[la.features.length-1].properties["Total Votes"]+'</span></b><br>'+
-        '<span class="alignleft";>Percent of Registered Voters Casting Ballots: </span><span style="color:#800000" class="alignright";><b>'+la.features[la.features.length-1].properties["Percent Votes Cast"]+'</span></b><br>'+
-        '<span class="alignleft";>Percent of All Ballots Cast by Mail: </span><span style="color:#800000" class="alignright";><b>'+la.features[la.features.length-1].properties["Percent Mail"]+'</span></b><br>'+
-        '<span class="alignleft";>Percent of All Ballots Cast by Drop Box: </span><span style="color:#800000" class="alignright";><b>'+la.features[la.features.length-1].properties["Percent Drop Box"]+'</span></b><br>'+
-        '<span class="alignleft";>Percent of All Ballots Cast In-Person: </span><span style="color:#800000" class="alignright";><b>'+la.features[la.features.length-1].properties["Percent Poll"]+'</span></b><br>'+
-        '<br><hr>'+
+        'Total Registered Voters in LA County: <span style="color:#800000";><b>'+la.features[la.features.length-1].properties["Number of Active Voters"]+'</span></b><br>'+
+        'Total Votes Cast in LA County: <span style="color:#800000";><b>'+la.features[la.features.length-1].properties["Total Votes"]+'</span></b><br>'+
+        'Percent of Registered Voters Casting Ballots: <span style="color:#800000";><b>'+la.features[la.features.length-1].properties["Percent Votes Cast"]+'</span></b><br>'+
+        'Percent of All Ballots Cast by Mail: <span style="color:#800000";><b>'+la.features[la.features.length-1].properties["Percent Mail"]+'</span></b><br>'+
+        'Percent of All Ballots Cast by Drop Box: <span style="color:#800000";><b>'+la.features[la.features.length-1].properties["Percent Drop Box"]+'</span></b><br>'+
+        'Percent of All Ballots Cast In-Person: <span style="color:#800000";><b>'+la.features[la.features.length-1].properties["Percent Poll"]+'</span></b><br>' +
+        '<hr>'+
         '<h5>LA Precinct Ballot Data</h5>' + 
       (
         props ?
-        '<span class="alignleft";>Precinct: </span><span style="color:#004080" class="alignright";><b>'+props.precinct+'</b></span>'+ 
-        '<br><span class="alignleft";>Total Registered Voters: </span><span style="color:#004080" class="alignright";><b>'+props["Number of Active Voters"]+'</span></b>'+
-        '<br><span class="alignleft";>Total Votes Cast: </span><span style="color:#004080" class="alignright";><b>'+props["Total Votes"]+'</span></b>'+
-        '<br><span class="alignleft";>Percent of Registered Voters Casting Ballots: </span><span style="color:#004080" class="alignright";><b>'+props['Percent Votes Cast']+'</span></b>'+
-        '<br><span class="alignleft";>Percent of All Ballots Cast by Mail: </span><span style="color:#004080" class="alignright";><b>'+props["Percent Mail"]+'</span></b>'+
-        '<br><span class="alignleft";>Percent of All Ballots Cast by Drop Box: </span><span style="color:#004080" class="alignright";><b>'+props["Percent Drop Box"]+'</span></b>'+
-        '<br><span class="alignleft";>Percent of All Ballots Cast In-Person: </span><span style="color:#004080" class="alignright";><b>'+props["Percent Poll"]+'</span></b>'
+        'Precinct: '+'<span style="color:#004080";><b>'+props.precinct+'</b></span>'+ 
+        '<br>Total Registered Voters: <span style="color:#004080";><b>'+props["Number of Active Voters"]+'</span></b>'+
+        '<br>Total Votes Cast: <span style="color:#004080";><b>'+props["Total Votes"]+'</span></b>'+
+        '<br>Percent of Registered Voters Casting Ballots: <span style="color:#004080";><b>'+props['Percent Votes Cast']+'</span></b>'+
+        '<br>Percent of All Ballots Cast by Mail: <span style="color:#004080";><b>'+props["Percent Mail"]+'</span></b>'+
+        '<br>Percent of All Ballots Cast by Drop Box: <span style="color:#004080";><b>'+props["Percent Drop Box"]+'</span></b>'+
+        '<br>Percent of All Ballots Cast In-Person: <span style="color:#004080";><b>'+props["Percent Poll"]+'</span></b>'
         : 'Hover over a precinct to view data'
         );
 };
@@ -363,7 +357,7 @@ info.addTo(map);
   <div class='legend-title'> 
       <h3 align="center" style="font-size:20px"><b>Los Angeles County Early Ballot<br>Count by Precinct and Vote Center</b></h3>
       <h4 align="center" style="font-size:15px"><b>2020 General Election</b></h4>
-      <h5 align="center"style="font-size:12px">Last Updated: 5:00 pm on 10/28/2020</h5> 
+      <h5 align="center"style="font-size:12px">Last Updated: 9:30 am on 10/27/2020</h5> 
   </div>
   </div>
 
