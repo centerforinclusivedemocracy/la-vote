@@ -136,8 +136,12 @@ var geojsonLayer = L.geoJson(vc, {
     pointToLayer: vc_style,
     onEachFeature: function (feature, layer) {
         layer.bindPopup('<b>'+feature.properties["Vote Center Type"]+' Vote Center</b>'+
-        '<br><b>Vote Center Location:</b>'+feature.properties["Address"]+
-        '<br><b>Number of In-person Votes Cast</b>: '+feature.properties["Number of Votes Accepted"]);
+        '<br><b>Number of In-person Votes Cast</b>: '+feature.properties["Number of Votes Accepted"]+
+        '<br><b>Vote Center Location:</b>'+'<br>'+feature.properties["Address"]+
+        '<br><b>Vote Center Size: </b>'+feature.properties.size+'*'+
+        '<br><b>Number of E-Poll Books Available: </b>'+feature.properties.epoll_allocated+'*'+
+        '<br><b>Number of Ballot Marking Devices Available: </b>'+feature.properties.bmd_allocated+'*'+
+        '<br><em>*Data provided by the Los Angeles County Registrar</em>');
     }
 });
 
@@ -246,23 +250,23 @@ info.onAdd = function (map) {
 info.update = function (props) {
     this._div.innerHTML = 
         '<h5>LA County Ballot Data</h5>' +
-        'Total Registered Voters in LA County: <span style="color:#800000";><b>'+la.features[la.features.length-1].properties["Number of Active Voters"]+'</span></b><br>'+
-        'Total Votes Cast in LA County: <span style="color:#800000";><b>'+la.features[la.features.length-1].properties["Total Votes"]+'</span></b><br>'+
-        'Percent of Registered Voters Casting Ballots: <span style="color:#800000";><b>'+la.features[la.features.length-1].properties["Percent Votes Cast"]+'</span></b><br>'+
-        'Percent of All Ballots Cast by Mail: <span style="color:#800000";><b>'+la.features[la.features.length-1].properties["Percent Mail"]+'</span></b><br>'+
-        'Percent of All Ballots Cast by Drop Box: <span style="color:#800000";><b>'+la.features[la.features.length-1].properties["Percent Drop Box"]+'</span></b><br>'+
-        'Percent of All Ballots Cast In-Person: <span style="color:#800000";><b>'+la.features[la.features.length-1].properties["Percent Poll"]+'</span></b><br>' +
-        '<hr>'+
+        '<span class="alignleft";>Total Registered Voters:</span><span style="color:#800000" class="alignright";><b>'+la.features[la.features.length-1].properties["Number of Active Voters"]+'</span></b><br>'+
+        '<span class="alignleft";>Total Votes Cast:</span><span style="color:#800000" class="alignright";><b>'+la.features[la.features.length-1].properties["Total Votes"]+'</span></b><br>'+
+        '<span class="alignleft";>Percent of Registered Voters Casting Ballots: </span><span style="color:#800000" class="alignright";><b>'+la.features[la.features.length-1].properties["Percent Votes Cast"]+'</span></b><br>'+
+        '<span class="alignleft";>Percent of All Ballots Cast by Mail: </span><span style="color:#800000" class="alignright";><b>'+la.features[la.features.length-1].properties["Percent Mail"]+'</span></b><br>'+
+        '<span class="alignleft";>Percent of All Ballots Cast by Drop Box: &nbsp;</span><span style="color:#800000" class="alignright";><b>'+la.features[la.features.length-1].properties["Percent Drop Box"]+'</span></b><br>'+
+        '<span class="alignleft";>Percent of All Ballots Cast In-Person: </span><span style="color:#800000" class="alignright";><b>'+la.features[la.features.length-1].properties["Percent Poll"]+'</span></b><br>'+
+        '<br><hr>'+
         '<h5>LA Precinct Ballot Data</h5>' + 
       (
         props ?
-        'Precinct: '+'<span style="color:#004080";><b>'+props.precinct+'</b></span>'+ 
-        '<br>Total Registered Voters: <span style="color:#004080";><b>'+props["Number of Active Voters"]+'</span></b>'+
-        '<br>Total Votes Cast: <span style="color:#004080";><b>'+props["Total Votes"]+'</span></b>'+
-        '<br>Percent of Registered Voters Casting Ballots: <span style="color:#004080";><b>'+props['Percent Votes Cast']+'</span></b>'+
-        '<br>Percent of All Ballots Cast by Mail: <span style="color:#004080";><b>'+props["Percent Mail"]+'</span></b>'+
-        '<br>Percent of All Ballots Cast by Drop Box: <span style="color:#004080";><b>'+props["Percent Drop Box"]+'</span></b>'+
-        '<br>Percent of All Ballots Cast In-Person: <span style="color:#004080";><b>'+props["Percent Poll"]+'</span></b>'
+        '<span class="alignleft";>Precinct: </span><span style="color:#004080" class="alignright";><b>'+props.precinct+'</b></span>'+ 
+        '<br><span class="alignleft";>Total Registered Voters: </span><span style="color:#004080" class="alignright";><b>'+props["Number of Active Voters"]+'</span></b>'+
+        '<br><span class="alignleft";>Total Votes Cast: </span><span style="color:#004080" class="alignright";><b>'+props["Total Votes"]+'</span></b>'+
+        '<br><span class="alignleft";>Percent of Registered Voters Casting Ballots: </span><span style="color:#004080" class="alignright";><b>'+props['Percent Votes Cast']+'</span></b>'+
+        '<br><span class="alignleft";>Percent of All Ballots Cast by Mail: </span><span style="color:#004080" class="alignright";><b>'+props["Percent Mail"]+'</span></b>'+
+        '<br><span class="alignleft";>Percent of All Ballots Cast by Drop Box: </span><span style="color:#004080" class="alignright";><b>'+props["Percent Drop Box"]+'</span></b>'+
+        '<br><span class="alignleft";>Percent of All Ballots Cast In-Person: </span><span style="color:#004080" class="alignright";><b>'+props["Percent Poll"]+'</span></b>'
         : 'Hover over a precinct to view data'
         );
 };
