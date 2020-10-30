@@ -5,7 +5,7 @@ body {
 }
 html, body, #map {
     height: 100%;
-    width: 100%;
+    width: 100vw;
 }
 
 /* info box */
@@ -15,10 +15,10 @@ html, body, #map {
     top: 130px;
     left: 3px;
     text-align:left;
-    color: #777;
+    color: rgb(22, 22, 22);
     font: 12px/14px Helvetica, serif;
     background: white;
-    background: rgba(255,255,255,0.8);
+    background: rgba(255,255,255,0.9);
     box-shadow: 0 0 15px rgba(0,0,0,0.2);
     border-radius: 5px;
     border: 2px solid #999;
@@ -186,17 +186,12 @@ hr {
 
 /* legend2 */
 .legend2 {
-    /* position: relative;
-    left: -1000px;
-    bottom: -417.5px; */
-    /* right: 150px;
-    bottom: -317.5px; */
     line-height: 18px;
     color: #333333;
     font-family: 'Open Sans', Helvetica, sans-serif;
     padding: 6px 8px;
     background: white;
-    background: rgba(255,255,255,0.8);
+    background: rgba(255,255,255,0.9);
     box-shadow: 0 0 15px rgba(0,0,0,0.2);
     border-radius: 5px;
     border: 2px solid #999;
@@ -226,19 +221,44 @@ hr {
 	size: 14 !important;
 
 }
+/* Keep this for the future */
 
-.leaflet-verticalcenter {
+/* .leaflet-verticalcenter {
     position: absolute;
     z-index: 1000;
     pointer-events: none;
     top: 71.35%; 
     left: 10%;
-    /* transform: translateY(-50%);  */
+    transform: translateY(-50%); 
     padding-top: 10px;
     margin-right: 150px;
 }
 
 .leaflet-verticalcenter .leaflet-control {
     margin-bottom: 10px;
+} */
+
+.legend_choro {
+    padding: 6px 8px;
+    width: auto;
+    height: auto;
+    color: 'black';
+    font: 12px/14px Helvetica, serif;
+    background: white;
+    background: rgba(255,255,255,0.9);
+    box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    border-radius: 5px;
+    border: 2px solid #999;
+    line-height: 15pt;
+    margin-top: 2px;
 }
+.legend_choro i {
+    border: 1px solid black;
+    width: 24px;
+    height: 18px;
+    float: left;
+    margin-right: 8px;
+    opacity: .7;
+}
+
 
