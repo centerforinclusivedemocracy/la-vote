@@ -3,8 +3,8 @@
 <!-- Define Head section, with links and scripts for use in Body -->
 <head> 
 <meta charset="utf-8" /> 
-<meta name="viewport" 
-      content="width=device-width, initial-scale=1.0"> 
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
       
 <!-- Get the leaflet CSS/JS sources -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
@@ -17,6 +17,9 @@
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
 <script src="leaflet.ajax.min.js" type="text/javascript" ></script>
 
+<!-- Get Bootstrap for CID loading spinners -->
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">    
+
 <!-- Add jQuery -->
 <script src="https://code.jquery.com/jquery-1.12.4.min.js"></script>
 
@@ -27,12 +30,18 @@
 <script src="https://unpkg.com/leaflet.awesome-markers@2.0.4/dist/leaflet.awesome-markers.js"></script>
 <link href="https://use.fontawesome.com/releases/v5.0.8/css/all.css" rel="stylesheet">
 
+<!--Get Geocoder source-->
+<link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
+<script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+
+<!--Get EasyButton source-->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet-easybutton@2/src/easy-button.css">
+<script src="https://cdn.jsdelivr.net/npm/leaflet-easybutton@2/src/easy-button.js"></script>
 </head> 
 
 <body>
 
 <!-- CID loading screen for webpage -->
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">    
 <div id="loading" style="text-align:center;">
     <img id="loading-image" src="CID.png" alt="Loading..." style="text-align:center;"/>
     <h3 style="text-align:center;">Loading approximately 250,000 precinct polygons for Los Angeles County... please allow several seconds to load.</h3>
@@ -47,6 +56,7 @@
     </div>
 </div> 
 
+<!-- jQuery to close CID loading screen when page has loaded -->
 <script>
     $(window).load(function() {
         $('#loading').hide();
@@ -56,134 +66,112 @@
 <!-- Specify the map and it's dimensions -->
 <div id="map"></div> 
 
-<!-- Call the Leaflet JavaScript functions -->
+<!-- Load the precint/vote center GeoJSONs and enable JS code below  -->
+<script type="text/javascript" src="la_precincts.geojson"></script>
+<script type="text/javascript" src="vote_centers.geojson"></script>
+<script type="text/javascript"> 
 
-<script type="text/javascript" src="la_precincts_test.geojson"></script>
-<script type="text/javascript" src="vote_centers_test.geojson"></script>
-<script type="text/javascript">  
+// Call the Leaflet JS functions
+var map = L.map(
+            "map",
+            {
+                center: [34.0, -118.3],
+                crs: L.CRS.EPSG3857,
+                zoom: 9,
+                zoomControl: false,
+                preferCanvas: true,
+            }
+        );
+L.control.scale().addTo(map);
+L.control.zoom({position: 'topright'}).addTo(map);
+var tile_layer = L.tileLayer(
+            "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+            {"attribution": "Data by \u0026copy; \u003ca href=\"http://openstreetmap.org\"\u003eOpenStreetMap\u003c/a\u003e, under \u003ca href=\"http://www.openstreetmap.org/copyright\"\u003eODbL\u003c/a\u003e.", "detectRetina": false, "maxNativeZoom": 18, "maxZoom": 18, "minZoom": 7, "noWrap": false, "opacity": 1, "subdomains": "abc", "tms": false}
+        ).addTo(map);
 
-    var map = L.map(
-                "map",
-                {
-                    center: [34.0, -118.3],
-                    crs: L.CRS.EPSG3857,
-                    zoom: 9,
-                    zoomControl: false,
-                    preferCanvas: true,
-                }
-            );
-    L.control.scale().addTo(map);
-    L.control.zoom({position: 'topright'}).addTo(map);
-    var tile_layer = L.tileLayer(
-                "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                {"attribution": "Data by \u0026copy; \u003ca href=\"http://openstreetmap.org\"\u003eOpenStreetMap\u003c/a\u003e, under \u003ca href=\"http://www.openstreetmap.org/copyright\"\u003eODbL\u003c/a\u003e.", "detectRetina": false, "maxNativeZoom": 18, "maxZoom": 18, "minZoom": 7, "noWrap": false, "opacity": 1, "subdomains": "abc", "tms": false}
-            ).addTo(map);
 
-    function getColor(d) {
-        return d > 90 ? '#081d58' :
-            d > 80  ? '#253494' :
-            d > 70  ? '#225ea8' :
-            d > 60  ? '#1d91c0' :
-            d > 50  ? '#41b6c4' :
-            d > 40  ? '#7fcdbb' :
-            d > 30   ? '#c7e9b4' :
-            d > 20   ? '#edf8b1' :
-            d > 10   ? '#ffffd9' :
-                        '#C4CACF';
-        }
-
-    function style(feature) {
-        return {
-            fillColor: getColor(feature.properties.pctvote),
-            weight: 1,
-            opacity: .25,
-            color: '#4a4c4f',
-            fillOpacity: 0.7
-        };
+// Legend color pallette and function
+function getColor(d) {
+    return d > 90 ? '#081d58' :
+        d > 80  ? '#253494' :
+        d > 70  ? '#225ea8' :
+        d > 60  ? '#1d91c0' :
+        d > 50  ? '#41b6c4' :
+        d > 40  ? '#7fcdbb' :
+        d > 30   ? '#c7e9b4' :
+        d > 20   ? '#edf8b1' :
+        d > 10   ? '#ffffd9' :
+                    '#C4CACF';
     }
 
-// control that shows state info on hover
-// var info = L.control();
-// info.onAdd = function (map) {
-//     this._div = L.DomUtil.create('div', 'info');
-//     this.update();
-//     return this._div;
-// };
-// info.update = function (props) {
-//     this._div.innerHTML = '<h4>US Population Density</h4>' +  (props ?
-//         '<b>' + props.precinct + '</b><br />' + props.pctvote + ' people / mi<sup>2</sup>'
-//         : 'Hover over a state');
-// };
-// info.addTo(map);
+function style(feature) {
+    return {
+        fillColor: getColor(feature.properties.pctvote),
+        weight: 1,
+        opacity: .25,
+        color: '#4a4c4f',
+        fillOpacity: 0.7
+    };
+}
 
-// function highlightFeature(e) {
-//     var layer = e.target;
-
-//     layer.setStyle({
-//         weight: 3,
-//         color: '#666',
-//         dashArray: '',
-//         fillOpacity: 0.7
-//     });
-
-//     if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
-//         layer.bringToFront();
-//     }
-
-//     info.update(layer.feature.properties);
-// }
-
-// var geojson;
-
-// function resetHighlight(e) {
-//     geojson.resetStyle(e.target);
-//     info.update();
-// }
-
-// function zoomToFeature(e) {
-//     map.fitBounds(e.target.getBounds());
-// }
-
-// function onEachFeature(feature, layer) {
-//     layer.on({
-//         mouseover: highlightFeature,
-//         mouseout: resetHighlight,
-//         click: zoomToFeature
-//     });
-// }
-
+// Create precint polygons
 var polygons = L.geoJson(la, {
     style: style,
-    // onEachFeature: onEachFeature
-}).bindTooltip(function (layer) { 
-  return '<b>Precinct: </b>'+layer.feature.properties.precinct+
-  '<br><b>Percent of Registered Voters Casting Ballots: </b>'+layer.feature.properties.pctvote+'%'+
-  '<br><b>Vote By Mail Ballots Cast: </b>'+layer.feature.properties["Percent VBM"]+
-  '<br><b>In Person Live Ballots Cast: </b>'+layer.feature.properties["Percent Poll"]+
-  '<br><b>Total Votes Cast: </b>'+layer.feature.properties["Total Votes"]+
-  '<br><b>Total Registered Voters: </b>'+layer.feature.properties["Number of Active Voters"]    
+    onEachFeature: onEachFeature
 }).addTo(map);
 
-//   var geojsonLayer = L.geoJson(vctest, {
-//     onEachFeature: function (feature, layer) {
-//     layer.bindPopup('Number of Votes Cast: '+feature.properties["In Person Live Ballots Cast"]);
-//   }
-//   })
+// Create VC layer and add popups with info
+var geojsonLayer = L.geoJson(vc, {
+    pointToLayer: vc_style,
+    onEachFeature: function (feature, layer) {
+        layer.bindPopup(
+        '<b>'+feature.properties["Vote Center Type"]+' Vote Center</b>'+
+        '<br><b>Number of In-person Votes Cast</b>: '+feature.properties["Number of Votes Accepted"]+
+        '<br><b>Vote Center Location:</b>'+'<br>'+feature.properties["Address"]+
+        '<br><b>Vote Center Size: </b>'+feature.properties.size+'*'+
+        '<br><b>Number of E-Poll Books Available: </b>'+feature.properties.epoll_allocated+'*'+
+        '<br><b>Number of Ballot Marking Devices Available: </b>'+feature.properties.bmd_allocated+'*'+
+        '<br><em>*Data provided by the Los Angeles County Registrar</em>',{offset: L.point(0, -15)});
+        layer.on('mouseout', function() { layer.closePopup(); });
+        layer.on('mouseover', function() { layer.openPopup(); });
 
+        // Potential option for hovering for 2s before the VC data is displayed, ideally it would be a click function trigger...
+
+        // layer.bindPopup(
+        // '<b>Hover 2s For Vote Center Data</b>',
+        // {closeButton: false, offset: L.point(0, -20)});
+
+        // layer.on('popupopen', function(e) {
+        // setTimeout(function(){
+        //         e.popup.setContent('<b>'+feature.properties["Vote Center Type"]+' Vote Center</b>'+
+        //         '<br><b>Number of In-person Votes Cast</b>: '+feature.properties["Number of Votes Accepted"]+
+        //         '<br><b>Vote Center Location:</b>'+'<br>'+feature.properties["Address"]+
+        //         '<br><b>Vote Center Size: </b>'+feature.properties.size+'*'+
+        //         '<br><b>Number of E-Poll Books Available: </b>'+feature.properties.epoll_allocated+'*'+
+        //         '<br><b>Number of Ballot Marking Devices Available: </b>'+feature.properties.bmd_allocated+'*'+
+        //         '<br><em>*Data provided by the Los Angeles County Registrar</em>');
+        //     },
+        //     1000
+        //     ); 
+        // });
+    }
+});
+
+// Swtich function for VC 5day/11day icons to show 
 function vc_style(feature, latlng) {
     switch(feature.properties["Vote Center Type"]) {
-        case "4 Day":
-            var four_day = new L.divIcon({
-                className: 'four',
-                    html: "<div style='background-color:#575556;' class='marker-pin2'></div><i class='fas fa-university awesome'>",
+        case "Five-Day":
+            var five_day = new L.divIcon({
+                className: 'five',
+                    html: "<div style='background-color:#575556;' class='marker-pin'></div><i class='fa fa-building' style='color:#575556'></i>",
                     iconSize: [30, 42],
                     iconAnchor: [15, 42]
                 });
-            return L.marker(latlng, {icon: four_day});
-        case "11 Day":
+            return L.marker(latlng, {icon: five_day});
+        case "Eleven-Day":
             var eleven_day = new L.divIcon({
                 className: 'eleven',
-                    html: "<div style='background-color:#4838cc;' class='marker-pin'></div><i class='fas fa-university awesome'>",
+                    html: "<div style='background-color:#4838cc;' class='marker-pin'></div><i class='fa fa-building' style='color:#4838cc'></i>",
                     iconSize: [30, 42],
                     iconAnchor: [15, 42]
                 });
@@ -191,72 +179,361 @@ function vc_style(feature, latlng) {
         }       
 };
 
-var geojsonLayer = L.geoJson(vctest, {
-    pointToLayer: vc_style,
-    onEachFeature: function (feature, layer) {
-        layer.bindPopup('<b>Vote Center</b>'+
-        '<br><b>Location</b>: '+feature.properties["Address"]+
-        '<br><b>Number of Votes Cast</b>: '+feature.properties["In Person Live Ballots Cast"]);
+// Create additional Control placeholders
+function addControlPlaceholders(map) {
+    var corners = map._controlCorners,
+        l = 'leaflet-',
+        container = map._controlContainer;
+
+    function createCorner(vSide, hSide) {
+        var className = l + vSide + ' ' + l + hSide;
+
+        corners[vSide + hSide] = L.DomUtil.create('div', className, container);
     }
+
+    createCorner('verticalcenter', 'left');
+    createCorner('verticalcenter', 'right');
+}
+addControlPlaceholders(map);
+
+// Popup legend for VCs
+var vclegend = L.control({position: 'topright'});
+vclegend.onAdd = function(map){
+    var div = L.DomUtil.create('container', 'legend2');
+    div.innerHTML += "<div <span style='position: absolute;top: 2px;font-weight: bold;font-size: 12px;'>Vote Center Type</span></div>" + '<br>'
+	div.innerHTML += "<div <i class='fa fa-building fa-3x' style='color:#575556'></i></div>" + "<span style='font-weight: bold;position: relative;margin-bottom: 5px;'> Five-Day</span>" + '<br>'
+	div.innerHTML += "<div <i class='fa fa-building fa-3x' style='color:#4838cc'></i></div>" + "<span style='font-weight: bold;position: relative;margin-bottom: 5px;'> Eleven-Day</span>" + '<br>'
+    return div;
+};
+
+// Create custom VC layer control button
+var animatedToggle = L.easyButton({
+    id: 'animated-marker-toggle',
+    position: 'topright',
+    states: [{
+        stateName: 'add-markers',
+        icon: '<strong>Select Vote Center Layer</strong>',
+        onClick: function(control) {
+        map.addLayer(geojsonLayer);
+        map.addControl(vclegend);
+        control.state('remove-markers');
+        }
+    }, {
+        stateName: 'remove-markers',
+        icon: '<strong>Remove Vote Center Layer</strong>',
+        onClick: function(control) {
+        map.removeLayer(geojsonLayer);
+        map.removeControl(vclegend);
+        control.state('add-markers');
+        }
+    }]
+});
+animatedToggle.addTo(map);
+
+// Geocoder: plugin from https://github.com/perliedman/leaflet-control-geocoder
+var geocoder = L.Control.geocoder({
+    id: 'geocode',
+    defaultMarkGeocode: false,
+    collapsed: false,
+    position: 'topright',
+    placeholder: 'Search for specific location...'
+    })
+    .on('markgeocode', function(e) {
+        var bbox = e.geocode.bbox;
+        var poly = L.polygon([
+            bbox.getSouthEast(),
+            bbox.getNorthEast(),
+            bbox.getNorthWest(),
+            bbox.getSouthWest()
+        ]);
+        map.fitBounds(poly.getBounds());
+    })
+    .addTo(map);
+
+// Choropleth legend
+var legend_choro = L.control({position: 'topright'});
+
+legend_choro.onAdd = function (map) {
+
+    var div = L.DomUtil.create("div", "legend_choro"),
+        grades = [10, 20, 30, 40, 50, 60, 70, 80, 90],
+        labels = ['<strong> Percent of Registered<br>Voters Casting Ballots </strong>'],
+        categories = ['< 10%','10-20%','20-30%','30-40%','40-50%','50-60%','60-70%','70-80%','> 90%'],
+        from;
+
+    labels.push('<i style="background: #C4CACF"></i> ' + 'No Data');
+
+      for (var i = 0; i < grades.length; i++) {
+        from = grades[i];
+        labels.push(
+          '<i style="background:' +
+            getColor(from + 1) +
+            '"></i> ' + 
+            categories[i]
+        );
+      }
+      div.innerHTML = labels.join("<br>");
+      return div;
+};
+
+legend_choro.addTo(map);
+
+// Control that shows state info on hover
+var info = L.control( {position: 'topleft'});
+
+info.onAdd = function (map) {
+    this._div = L.DomUtil.create('div', 'info');
+    this.update();
+    return this._div;
+};
+
+info.update = function (props) {
+    this._div.innerHTML = 
+        '<h5>LA County Ballot Data</h5>' +
+        '<span class="alignleft";>Total Registered Voters:</span><span style="color:#800000" class="alignright";><b>'+la.features[la.features.length-1].properties["Number of Active Voters"]+'</span></b><br>'+
+        '<span class="alignleft";>Total Votes Cast:</span><span style="color:#800000" class="alignright";><b>'+la.features[la.features.length-1].properties["Total Votes"]+'</span></b><br>'+
+        '<span class="alignleft";>Percent of Registered Voters Casting Ballots: </span><span style="color:#800000" class="alignright";><b>'+la.features[la.features.length-1].properties["Percent Votes Cast"]+'</span></b><br>'+
+        '<span class="alignleft";>Percent of All Ballots Cast by Mail: </span><span style="color:#800000" class="alignright";><b>'+la.features[la.features.length-1].properties["Percent Mail"]+'</span></b><br>'+
+        '<span class="alignleft";>Percent of All Ballots Cast by Drop Box: &nbsp;</span><span style="color:#800000" class="alignright";><b>'+la.features[la.features.length-1].properties["Percent Drop Box"]+'</span></b><br>'+
+        '<span class="alignleft";>Percent of All Ballots Cast In-Person: </span><span style="color:#800000" class="alignright";><b>'+la.features[la.features.length-1].properties["Percent Poll"]+'</span></b><br>'+
+        '<br><hr>'+
+        '<h5>LA Precinct Ballot Data</h5>' + 
+      (
+        props ?
+        '<span class="alignleft";>Precinct: </span><span style="color:#004080" class="alignright";><b>'+props.precinct+'</b></span>'+ 
+        '<br><span class="alignleft";>Total Registered Voters: </span><span style="color:#004080" class="alignright";><b>'+props["Number of Active Voters"]+'</span></b>'+
+        '<br><span class="alignleft";>Total Votes Cast: </span><span style="color:#004080" class="alignright";><b>'+props["Total Votes"]+'</span></b>'+
+        '<br><span class="alignleft";>Percent of Registered Voters Casting Ballots: </span><span style="color:#004080" class="alignright";><b>'+props['Percent Votes Cast']+'</span></b>'+
+        '<br><span class="alignleft";>Percent of All Ballots Cast by Mail: </span><span style="color:#004080" class="alignright";><b>'+props["Percent Mail"]+'</span></b>'+
+        '<br><span class="alignleft";>Percent of All Ballots Cast by Drop Box: </span><span style="color:#004080" class="alignright";><b>'+props["Percent Drop Box"]+'</span></b>'+
+        '<br><span class="alignleft";>Percent of All Ballots Cast In-Person: </span><span style="color:#004080" class="alignright";><b>'+props["Percent Poll"]+'</span></b>'
+        : 'Hover over a precinct to view data'
+        );
+};
+
+function highlightFeature(e) {
+    var layer = e.target;
+
+    layer.setStyle({
+			weight: 2.5,
+			color: '#666',
+            opacity: .75,
+			dashArray: '',
+			fillOpacity: 0.2
+		});
+
+    if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+        layer.bringToFront();
+    }
+
+    info.update(layer.feature.properties);
+}
+
+function resetHighlight(e) {
+    polygons.resetStyle(e.target);
+    info.update();
+}
+
+function zoomToFeature(e) {
+    map.fitBounds(e.target.getBounds());
+}
+
+function onEachFeature(feature, layer) {
+    layer.on({
+        mouseover: highlightFeature,
+        mouseout: resetHighlight,
+        click: zoomToFeature
+    });
+}
+
+info.addTo(map);
+
+/////////////////////////////////////
+
+L.Control.Info = L.Control.extend({     
+
+options: {
+  title: 'Info',
+  titleTooltip: 'Click here for more info',
+  content: '',
+  maxWidth: '250px',
+  titleClass: '',
+  contentClass: ''
+},
+
+initialize: function(options) {        
+  L.Util.setOptions(this, options);
+  this._infoContainer = null;
+  this._infoTitleContainer = null;
+  this._infoBodyContainer = null;
+  this._infoCloseButtonContainer = null;
+  this._infoContentContainer = null;
+  this._infoTitle = this.options.title;
+  this._infoTitleTooltip = this.options.titleTooltip;
+  this._infoContent = this.options.content;
+  this._titleShown = false;
+  this._titleClass = this.options.titleClass;
+  this._contentClass = this.options.contentClass;
+  this._infoTitleStyle = 'padding: 5px;';
+  this._infoContainerClasses = 'leaflet-control-layers leaflet-control';
+},
+
+onAdd: function(map) {
+  var infoContainer = L.DomUtil.create('div', 'leaflet-control-layers');
+
+  var infoTitle = L.DomUtil.create('div');
+  infoContainer.appendChild(infoTitle);
+  infoTitle.setAttribute('style', this._infoTitleStyle);
+
+  var infoBody = L.DomUtil.create('div', 'leaflet-popup-content-wraper');
+  infoContainer.appendChild(infoBody);
+  infoBody.setAttribute('style', 'max-width:' + this.options.maxWidth);
+
+  var infoContent = L.DomUtil.create('div', 'leaflet-popup-content');
+  infoBody.appendChild(infoContent);
+
+  var infoCloseButton = L.DomUtil.create('a', 'leaflet-popup-close-button');
+  infoContainer.appendChild(infoCloseButton);
+  infoCloseButton.innerHTML = 'x';
+  infoCloseButton.setAttribute('style', 'cursor: pointer');
+
+      this._infoContainer = infoContainer;
+      this._infoTitleContainer = infoTitle;
+      this._infoBodyContainer = infoBody;
+      this._infoContentContainer = infoContent;
+      this._infoCloseButtonContainer = infoCloseButton;
+
+  infoTitle.innerHTML = this._infoTitle;
+  infoContent.innerHTML = this._infoContent;
+  this._showTitle();
+
+      L.DomEvent.disableClickPropagation(infoContainer);
+      L.DomEvent.on(infoCloseButton, 'click', L.DomEvent.stop);
+      L.DomEvent.on(infoContainer, 'click', this._showContent, this);
+      L.DomEvent.on(infoCloseButton, 'click', this._showTitle, this);
+
+  return infoContainer;
+},
+
+onRemove: function(map){},
+
+setTitle: function(title) {
+  this._infoTitle = title;
+  if (this._infoTitleContainer != null) {
+    this._infoTitleContainer.innerHTML = title;
+  }
+},
+
+setTitleTooltip: function(titleTooltip) {
+  this._infoTitleTooltip = titleTooltip;
+  if (this._titleShown) {
+    this._showTitleTooltip(true);
+  }
+},
+
+setContent: function(content) {
+  this._infoContent = content;
+  if (this._infoContentContainer != null) {
+    this._infoContentContainer.innerHTML = content;
+  }
+},
+
+setTitleClass: function(titleClass) {
+  this._titleClass = titleClass;
+  if (this._titleShown) {
+    this._addInfoClass(this._titleClass);
+  }
+},
+
+setContentClass: function(contentClass) {
+  this._contentClass = contentClass;
+  if (!this._titleShown) {
+    this._addInfoClass(this._contentClass);
+  }
+},
+
+_showTitle: function (evt) {
+  this._addInfoClass(this._titleClass);
+  this._displayElement(this._infoTitleContainer, true);
+  this._displayElement(this._infoBodyContainer, false);
+  this._displayElement(this._infoCloseButtonContainer, false);
+  this._showTitleTooltip(true);
+  this._setCursorToPointer(this._infoContainer, true);
+  this._titleShown = true;
+},
+
+_showContent: function (evt) {
+  this._addInfoClass(this._contentClass);
+  this._displayElement(this._infoTitleContainer, false);
+  this._displayElement(this._infoBodyContainer, true);
+  this._displayElement(this._infoCloseButtonContainer, true);
+  this._showTitleTooltip(false);
+  this._setCursorToPointer(this._infoContainer, false);
+  this._titleShown = false;
+},
+
+_showTitleTooltip: function (showIt) {
+  this._infoContainer.setAttribute('Title', (showIt) ? this._infoTitleTooltip : '');
+},
+
+_displayElement: function (element, displayIt) {
+  element.style.display = (displayIt) ? '' : 'none';
+},
+
+_setCursorToPointer: function (element, setIt) {
+  element.style.cursor = (setIt) ? 'pointer' : '';
+},
+
+_addInfoClass: function (classToAdd) {
+  L.DomUtil.setClass(this._infoContainer, this._infoContainerClasses + ' ' + classToAdd);
+}
 });
 
-var controlLayers = L.control.layers(null,null,{collapsed:false}).addTo(map);
+L.control.info = function(opts) {
+  return new L.Control.Info(opts);
+}
 
-controlLayers.addOverlay(geojsonLayer, 'View Vote Centers');
+var title = [];
+var tooltip = [];
+var text = [];
+var titleClass = [];
+var contentClass = [];
+
+var i = 0;
+var j = 0;
+
+title[0] = '<b>About the Data</b>';
+tooltip[0] = 'Lorem ipsum dolor sit amet';
+text[0] = "<p style='margin-bottom: 6pt;'><b>Data Source: </b>California Secretary of State VoteCal System. Data by race and ethnicity of all voters are not available from the VoteCal system.<br><hr><br> <i>The LA County Early Ballot Count Tool was developed by the <a href='https://cid.usc.edu/' style='color:Blue;' target='_blank' rel='noopener noreferrer'> USC Center for Inclusive Democracy</a> in partnership with the California Secretary of State's Office.</i>"
+titleClass[0] = 'titleStyle1';
+contentClass[0] = 'contentStyle1';
+
+myInfoControl = L.control.info({
+position: 'bottomright',
+title: title[0],
+titleTooltip: tooltip[0],
+titleClass: titleClass[0],
+contentClass: contentClass[0]
+});
+
+myInfoControl.setContent(text[0]);
+
+myInfoControl.addTo(map);
 
 </script>
 
-  <body>
-  
-  <div id='infobox' class='infobox'
-   style='position: absolute; z-index:9999; border:2px solid grey; width: 500px; background-color:rgba(255, 255, 255, 0.8);
-  border-radius:6px; padding: 3px; font-size:14px; right: 15px; bottom: 20px;'
-  >
-       
-  <div>
-      <b>Data Source</b>: California Secretary of Stata VoteCal System. Data by race, ethnicity, age, and other demographic characteristics of the voter are not available from the VoteCA system.<br><hr>
-      <i>The LA County Early Vote Count Tool was developed by the <a href="https://cid.usc.edu/" style="color:Blue;" target="_blank" rel="noopener noreferrer"> USC Center for Inclusive Democracy</a> in partnership with the California Secretary of State's Office.</i>
-  </div>
-  </div>
-   
-  </body>    
-
-  <body>
-   
-  <div id='maplegend' class='maplegend' 
-      style='position: absolute; z-index:9999; border:2px solid grey; background-color:rgba(255, 255, 255, 0.8);
-       border-radius:6px; padding: 2px; font-size:14px; right: 15px; bottom: 140px;'>
-       
-  <div class='legend-title'>Percent of Registered<br>Voters Casting Ballots</div>
-  <div class='legend-scale'>
-    <ul class='legend-labels'>
-      <li><span style='background:#C4CACF;opacity:0.7;'></span> No Data</li>
-      <li><span style='background:#ffffd9;opacity:0.7;'></span> &lt; 10% </li>
-      <li><span style='background:#edf8b1;opacity:0.7;'></span> 10-20%</li>
-      <li><span style='background:#c7e9b4;opacity:0.7;'></span> 20-30%</li>
-      <li><span style='background:#7fcdbb;opacity:0.7;'></span> 30-40%</li>
-      <li><span style='background:#41b6c4;opacity:0.7;'></span> 40-50%</li>
-      <li><span style='background:#1d91c0;opacity:0.7;'></span> 50-60%</li>
-      <li><span style='background:#225ea8;opacity:0.7;'></span> 60-70%</li>
-      <li><span style='background:#253494;opacity:0.7;'></span> 70-80%</li>
-      <li><span style='background:#081d58;opacity:0.7;'></span> > 90%</li>
-  
-    </ul>
-  </div>
-  </div>
-   
-  </body> 
+<!-- Divs for text / legend -->
   <body>
   
   <div id='maplegend' class='maplegend' 
       style='position: absolute; z-index:9999; border:2px solid grey; background-color:rgba(255, 255, 255, 0.8);
-       border-radius:6px; padding-top: 0px; padding-bottom:1px; padding-right:10px; padding-left:10px; font-size:14px; 
-       top: 20px; left: 20px;'>
+       border-radius:6px; padding-top: 0px; padding-bottom:1px; padding-right:8px; padding-left:10px; font-size:14px; 
+       top: 13px; left: 13px;'>
        
   <div class='legend-title'> 
       <h3 align="center" style="font-size:20px"><b>Los Angeles County Early Ballot<br>Count by Precinct and Vote Center</b></h3>
       <h4 align="center" style="font-size:15px"><b>2020 General Election</b></h4>
-      <h5 align="center"style="font-size:12px">Last Updated: 6 pm on 10/25/2020</h5> 
+      <h5 align="center"style="font-size:12px">Last Updated: 8:00 am on 10/30/2020</h5> 
   </div>
   </div>
 

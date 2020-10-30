@@ -5,47 +5,46 @@ body {
 }
 html, body, #map {
     height: 100%;
-    width: 100%;
+    width: 100vw;
 }
 
-/* info for visualizations */
-
-/* .info {
+/* info box */
+.info {
     padding: 6px 8px;
-    font: 14px/16px Arial, Helvetica, sans-serif;
+    position: absolute;
+    top: 130px;
+    left: 3px;
+    text-align:left;
+    color: rgb(22, 22, 22);
+    font: 12px/14px Helvetica, serif;
     background: white;
-    background: rgba(255,255,255,0.8);
+    background: rgba(255,255,255,0.9);
     box-shadow: 0 0 15px rgba(0,0,0,0.2);
     border-radius: 5px;
+    border: 2px solid #999;
+    line-height: 13pt;
+    clear: both;
 }
-.info h4 {
+
+.alignleft {
+  float: left;
+}
+
+.alignright {
+	float: right;
+}
+
+.info h5 {
     margin: 0 0 5px;
-    color: #777;
-} */
-
-/* infobox */
-
-/* .infobox .infobox-title { */
-    /* text-align: left;
-    margin-top: 1px;
-    margin-bottom: 5px;
     font-weight: bold;
-    font-size: 90%; */
-    /* position: absolute; 
-    z-index:9999; 
-    border:2px solid grey; 
-    width: 450px; 
-    background-color:rgba(255, 255, 255, 0.8);
-    border-radius:6px; 
-    padding: 2px; 
-    font-size:14px; 
-    right: 20px; 
-    bottom: 20px */
-    /* } */
+    color: rgb(0, 0, 0);
+    font-size: 15px;
+}
 
 /* legend */
 
 .maplegend .legend-title {
+    font: Helvetica, serif;
     text-align: left;
     margin-bottom: 5px;
     font-weight: bold;
@@ -95,23 +94,7 @@ hr {
 
 } 
 
-/* leaflet layer control */
-
-.leaflet-control-layers-toggle:after{ 
-    content:"your text"; 
-    color:#000 ;
-}
-.leaflet-control-layers-toggle{ 
-    width:auto;
-    background-position:3px 50% ;
-    padding:3px;
-    padding-left:36px;
-    text-decoration:none;
-    line-height:36px;
-
-}
-
-/* icons */
+/* VC icons */
 
  .marker-pin {
     width: 30px;
@@ -158,17 +141,17 @@ hr {
     opacity: .5;
  }
   /* // to align icon */
-  .four i {
+  .five i {
      position: absolute;
      width: 22px;
-     font-size: 22px;
+     font-size: 18px;
      left: 0;
      right: 0;
-     margin: 10px auto;
+     margin: 12px auto;
      text-align: center;
   }
 
- .four i.awesome {
+ .five i.awesome {
     margin: 12px auto;
     font-size: 17px;
  }
@@ -176,10 +159,10 @@ hr {
 .eleven i {
     position: absolute;
     width: 22px;
-    font-size: 22px;
+    font-size: 18px;
     left: 0;
     right: 0;
-    margin: 10px auto;
+    margin: 12px auto;
     text-align: center;
  }
 
@@ -187,4 +170,95 @@ hr {
    margin: 12px auto;
    font-size: 17px;
 }
+
+.geocode {
+    border-radius: 5px;
+}
+  
+/* Leaflet EasyButton controls */
+#animated-marker-toggle { 
+    height: 30px !important; 
+    width: 200px !important; 
+    position: relative; 
+    font-size: 14px;
+    border-radius: 5px;
+}
+
+/* legend2 */
+.legend2 {
+    line-height: 18px;
+    color: #333333;
+    font-family: 'Open Sans', Helvetica, sans-serif;
+    padding: 6px 8px;
+    background: white;
+    background: rgba(255,255,255,0.9);
+    box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    border-radius: 5px;
+    border: 2px solid #999;
+}
+
+.legend2 i {
+  width: 14 !important;
+	height: 14!important;
+	float: left;
+	margin-right: 8px;
+	opacity: 0.7;
+}
+
+.legend2 img {
+	width: 14 !important;
+	height: 14 !important;
+	float: left;
+}
+
+.legend2 p {
+	font-size: 15px;
+	line-height: 18px;
+    margin: 0;
+}
+
+.legend2 .awesome {
+	size: 14 !important;
+
+}
+/* Keep this for the future */
+
+/* .leaflet-verticalcenter {
+    position: absolute;
+    z-index: 1000;
+    pointer-events: none;
+    top: 71.35%; 
+    left: 10%;
+    transform: translateY(-50%); 
+    padding-top: 10px;
+    margin-right: 150px;
+}
+
+.leaflet-verticalcenter .leaflet-control {
+    margin-bottom: 10px;
+} */
+
+.legend_choro {
+    padding: 6px 8px;
+    width: auto;
+    height: auto;
+    color: 'black';
+    font: 12px/14px Helvetica, serif;
+    background: white;
+    background: rgba(255,255,255,0.9);
+    box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    border-radius: 5px;
+    border: 2px solid #999;
+    line-height: 15pt;
+    margin-top: 2px;
+}
+.legend_choro i {
+    border: 1px solid black;
+    width: 24px;
+    height: 18px;
+    float: left;
+    margin-right: 8px;
+    opacity: .7;
+}
+
 
