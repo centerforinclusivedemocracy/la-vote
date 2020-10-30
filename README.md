@@ -9,7 +9,7 @@ When updating data:
   vote_centers.geojson: `var vc = `
 - Edit line 314 of index.html to read when data was last updated (time provided in filename from Mindy):
 
-  `<h5 align="center"style="font-size:12px">Last Updated: 8:00 am on 10/28/2020</h5> `
+  `<h5 align="center"style="font-size:12px">Last Updated: 7:00 pm on 10/29/2020</h5> `
 
 ### Data processing:
 To process precinct and vote center voting data for LA county and output data as geojsons to be used in CID's LA Vote map, run process_data.py, edited with your file locations for the following variables:
