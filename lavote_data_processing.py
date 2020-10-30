@@ -227,22 +227,28 @@ def process_votecenters(votecenter_gjson, votecenter_voters, votecenter_alloc, o
     vc_alloc = pd.read_excel(votecenter_alloc)
     # sum vote totals by vote center across all days
     vc = vc.groupby(['Vote Location Name', 'Vote Location Address'], as_index=False).sum()
-    vc.head()
-    # join shapefile and voter data
+    # clean up voting data vote center names with typos to be able to join data on geojson
+    vc.loc[vc['Vote Location Name'].str.contains('DOCKWEILER'), 'Vote Location Name'] = 'DOCKWEILER YOUTH CENTER - COMMUNITY ROOMS A, B AND C'
+    vc.loc[vc['Vote Location Name'].str.contains('FLEX VOTE'), 'Vote Location Name'] = vc['Vote Location Name'].str.replace(' - RR/CC', '')
+    vc.loc[vc['Vote Location Name'].str.contains('FOUR POINTS BY SHERATON LA WESTSIDE'), 'Vote Location Name'] = vc['Vote Location Name'].str.replace(' AND ', '/' )
+    vc.loc[vc['Vote Location Name'].str.contains('LENNOX PARK - COMMUNITY ROOM'), 'Vote Location Name'] = vc['Vote Location Name'].str.replace(' AND ', '&' )
+    vc.loc[vc['Vote Location Name'].str.contains('LOS ANGELES MISSION COLLEGE'), 'Vote Location Name'] = vc['Vote Location Name'].str.replace(' 1', '' )
+    vc.loc[vc['Vote Location Name'].str.contains('MOBILE VOTE CENTER'), 'Vote Location Name'] = vc['Vote Location Name'].str.replace(' - RR/CC', '')
+    vc.loc[vc['Vote Location Name'].str.contains('POP UP'), 'Vote Location Name'] = vc['Vote Location Name'].str.replace(' - RR/CC', '')
+    vc.loc[vc['Vote Location Name'].str.contains('SKIRBALL'), 'Vote Location Name'] = vc['Vote Location Name'].str.replace(' 1', '' )
+    vc.loc[vc['Vote Location Name'].str.contains('DOROTHY CHANDLER'), 'Vote Location Name'] = vc['Vote Location Name'].str.replace('CHANDLER', 'CHANDLER,' )
+
+    # join geojson and voter data
     merged = vc_gdf.merge(vc, left_on='Name', right_on='Vote Location Name', how='outer')
-    print("Number of Vote Centers with voting data without a match:", 
-        len(merged[merged['Address'].isna()]))
+    print("Number of Vote Centers with voting data without a match:", len(merged[merged['Address'].isna()]))
     # join vote center allocation data with vote center shapes and vote data
-    vc_final = merged.merge(
-        vc_alloc, 
-        left_on='Vote Location Id', 
-        right_on='vote_center_sos_id', 
-        how='outer')
+    vc_final = merged.merge(vc_alloc, left_on='Vote Location Id', right_on='vote_center_sos_id', how='outer')
     print('Number of Vote Centers with allocation data without a match:', 
         len(vc_final[vc_final['County Id'].isna() & vc_final['Vote Location Name'].isna()]))
     # clean up data
-    vc_final = vc_final[['Name', 'Hours Of Operation', 'Address', '# of Votes accepted', 
-        'Vote Center Type', 'geometry', 'size', 'bmd_allocated', 'ePollBook_Allocated']]
+    vc_final['Vote Center Type'] = np.where(vc_final['Hours Of Operation'].str.contains('OCTOBER 24'), 'Eleven-Day', 'Five-Day')
+    vc_final = vc_final[['Name', 'Address', '# of Votes accepted', 'Vote Center Type', 
+                        'geometry', 'size', 'bmd_allocated', 'ePollBook_Allocated']]
     vc_final.rename(columns={
         '# of Votes accepted' : 'Number of Votes Accepted',
         'ePollBook_Allocated' : 'epoll_allocated'
