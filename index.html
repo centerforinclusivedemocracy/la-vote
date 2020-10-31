@@ -125,7 +125,7 @@ var geojsonLayer = L.geoJson(vc, {
     pointToLayer: vc_style,
     onEachFeature: function (feature, layer) {
         layer.bindPopup(
-        '<b>'+feature.properties["Vote Center Type"]+' Vote Center</b>'+
+        '<b>'+feature.properties["Vote Center Type"]+' Vote Center: </b>'+ feature.properties["Name"]+
         '<br><b>Number of In-person Votes Cast</b>: '+feature.properties["Number of Votes Accepted"]+
         '<br><b>Vote Center Location:</b>'+'<br>'+feature.properties["Address"]+
         '<br><b>Vote Center Size: </b>'+feature.properties.size+'*'+
@@ -296,6 +296,8 @@ info.update = function (props) {
         '<span class="alignleft";>Percent of All Ballots Cast by Mail: </span><span style="color:#800000" class="alignright";><b>'+la.features[la.features.length-1].properties["Percent Mail"]+'</span></b><br>'+
         '<span class="alignleft";>Percent of All Ballots Cast by Drop Box: &nbsp;</span><span style="color:#800000" class="alignright";><b>'+la.features[la.features.length-1].properties["Percent Drop Box"]+'</span></b><br>'+
         '<span class="alignleft";>Percent of All Ballots Cast In-Person: </span><span style="color:#800000" class="alignright";><b>'+la.features[la.features.length-1].properties["Percent Poll"]+'</span></b><br>'+
+        // '<span class="alignleft";>Percent of all Ballots Dropped Off at Vote Centers: </span><span style="color:#800000" class="alignright";><b>'+___+'</span></b><br>'+
+        // '<span class="alignleft";>Conditional Voter Registration: </span><span style="color:#800000" class="alignright";><b>'+___+'</span></b><br>'+
         '<br><hr>'+
         '<h5>LA Precinct Ballot Data</h5>' + 
       (
@@ -307,6 +309,9 @@ info.update = function (props) {
         '<br><span class="alignleft";>Percent of All Ballots Cast by Mail: </span><span style="color:#004080" class="alignright";><b>'+props["Percent Mail"]+'</span></b>'+
         '<br><span class="alignleft";>Percent of All Ballots Cast by Drop Box: </span><span style="color:#004080" class="alignright";><b>'+props["Percent Drop Box"]+'</span></b>'+
         '<br><span class="alignleft";>Percent of All Ballots Cast In-Person: </span><span style="color:#004080" class="alignright";><b>'+props["Percent Poll"]+'</span></b>'
+        // '<br><span class="alignleft";>Percent of All Ballots Cast In-Person: </span><span style="color:#004080" class="alignright";><b>'+props["Percent Poll"]+'</span></b>' +
+        // '<br><span class="alignleft";>Percent of all Ballots Dropped Off at Vote Centers: </span><span style="color:#800000" class="alignright";><b>'+___+'</span></b>'+
+        // '<br><span class="alignleft";>Conditional Voter Registration: </span><span style="color:#800000" class="alignright";><b>'+___+'</span></b>'
         : 'Hover over a precinct to view data'
         );
 };
