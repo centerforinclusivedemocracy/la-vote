@@ -296,8 +296,8 @@ info.update = function (props) {
         '<span class="alignleft";>Percent of All Ballots Cast by Mail: </span><span style="color:#800000" class="alignright";><b>'+la.features[la.features.length-1].properties["Percent Mail"]+'</span></b><br>'+
         '<span class="alignleft";>Percent of All Ballots Cast by Drop Box: &nbsp;</span><span style="color:#800000" class="alignright";><b>'+la.features[la.features.length-1].properties["Percent Drop Box"]+'</span></b><br>'+
         '<span class="alignleft";>Percent of All Ballots Cast In-Person: </span><span style="color:#800000" class="alignright";><b>'+la.features[la.features.length-1].properties["Percent Poll"]+'</span></b><br>'+
-        // '<span class="alignleft";>Percent of all Ballots Dropped Off at Vote Centers: </span><span style="color:#800000" class="alignright";><b>'+___+'</span></b><br>'+
-        // '<span class="alignleft";>Conditional Voter Registration: </span><span style="color:#800000" class="alignright";><b>'+___+'</span></b><br>'+
+        '<span class="alignleft";>Percent of All Ballots Dropped Off at Vote Centers:&nbsp;</span><span style="color:#800000" class="alignright";><b>'+la.features[la.features.length-1].properties["Percent Vote Center Drop Off"]+'</span></b><br>'+
+        '<span class="alignleft";>Conditional Voter Registration:</span><span style="color:#800000" class="alignright";><b>'+la.features[la.features.length-1].properties["Conditional Voter Registration"]+'</span></b><br>'+
         '<br><hr>'+
         '<h5>LA Precinct Ballot Data</h5>' + 
       (
@@ -308,10 +308,9 @@ info.update = function (props) {
         '<br><span class="alignleft";>Percent of Registered Voters Casting Ballots: </span><span style="color:#004080" class="alignright";><b>'+props['Percent Votes Cast']+'</span></b>'+
         '<br><span class="alignleft";>Percent of All Ballots Cast by Mail: </span><span style="color:#004080" class="alignright";><b>'+props["Percent Mail"]+'</span></b>'+
         '<br><span class="alignleft";>Percent of All Ballots Cast by Drop Box: </span><span style="color:#004080" class="alignright";><b>'+props["Percent Drop Box"]+'</span></b>'+
-        '<br><span class="alignleft";>Percent of All Ballots Cast In-Person: </span><span style="color:#004080" class="alignright";><b>'+props["Percent Poll"]+'</span></b>'
-        // '<br><span class="alignleft";>Percent of All Ballots Cast In-Person: </span><span style="color:#004080" class="alignright";><b>'+props["Percent Poll"]+'</span></b>' +
-        // '<br><span class="alignleft";>Percent of all Ballots Dropped Off at Vote Centers: </span><span style="color:#800000" class="alignright";><b>'+___+'</span></b>'+
-        // '<br><span class="alignleft";>Conditional Voter Registration: </span><span style="color:#800000" class="alignright";><b>'+___+'</span></b>'
+        '<br><span class="alignleft";>Percent of All Ballots Cast In-Person: </span><span style="color:#004080" class="alignright";><b>'+props["Percent Poll"]+'</span></b>' +
+        '<br><span class="alignleft";>Percent of all Ballots Dropped Off at Vote Centers: </span><span style="color:#004080" class="alignright";><b>'+props["Percent Vote Center Drop Off"]+'</span></b>'+
+        '<br><span class="alignleft";>Conditional Voter Registration: </span><span style="color:#004080" class="alignright";><b>'+props["Conditional Voter Registration"]+'</span></b>'
         : 'Hover over a precinct to view data'
         );
 };
