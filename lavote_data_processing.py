@@ -69,52 +69,46 @@ def process_precincts(precincts_shape, registered_voters, voters, output_loc, re
     prec = gpd.read_file(precincts_shape)
     reg = pd.read_csv(registered_voters)
     vote = pd.read_csv(voters)
-    # retain total number of votes of all types
-    total_votes = vote['# of Votes accepted'].sum()
-    # break out VBM data by mail and drop box
+    # break out VBM data by mail, drop box, and vote center drop box
+    total = vote.groupby('VPH HomePrecinct Number').sum().reset_index()
+    cvr = vote.loc[vote['Voting Type'] == 'CVR']
     mail = vote.loc[vote['VBM Return Method Code'] == 'Mail']
     db = vote.loc[vote['VBM Return Method Code'] == 'Drop Box']
+    do = vote.loc[vote['VBM Return Method Code'] == 'Vote Center Drop Off']
     # reshapeVBM data
-    all_mail = mail.merge(db, on='VPH HomePrecinct Number', how='outer', suffixes=(None, '_x'))
-    all_mail['VBM Return Method Code'] = np.where(
-        all_mail['VBM Return Method Code_x'].notnull(), 
-        all_mail['VBM Return Method Code_x'], 
-        all_mail['VBM Return Method Code'])
-    [all_mail.drop(columns=col, inplace=True) for col in all_mail.columns if '_x' in col and '#' not in col]
+    all_mail = mail.merge(db, on='VPH HomePrecinct Number', how='outer', suffixes=(None, '_db')).merge(do, on='VPH HomePrecinct Number', how='outer', suffixes=(None, '_do'))
+    all_mail.loc[all_mail['VBM Return Method Code_db'].notnull(), 'VBM Return Method Code'] = all_mail['VBM Return Method Code_db']
+    all_mail.loc[all_mail['VBM Return Method Code_do'].notnull(), 'VBM Return Method Code'] = all_mail['VBM Return Method Code_do']
+    all_mail = all_mail[['# of Votes accepted', 'VPH HomePrecinct Number', '# of Votes accepted_db', '# of Votes accepted_do']]
     all_mail.rename(columns = {
         '# of Votes accepted' : 'Mail',
-        '# of Votes accepted_x' : 'Drop Box',
-        'VPH HomePrecinct Number' : 'PrecinctNumber',
-        'VPH HomePrecinct Name' : 'Precinct Name'
+        '# of Votes accepted_db' : 'Drop Box',
+        '# of Votes accepted_do' : 'Vote Center Drop Off',
     }, inplace=True)
+    all_mail['Vote Center Drop Off'] = all_mail['Vote Center Drop Off'].astype('Int64')
+    all_mail['Mail'] = all_mail['Mail'].astype('Int64')
+    all_mail['Drop Box'] = all_mail['Drop Box'].astype('Int64')
     # reshape in-person polls data
     polls = vote.loc[vote['Voting Type'] == 'In Person Live Ballot']
-    polls.rename(columns={
-        'VPH HomePrecinct Name' : 'Precinct Name',
+    # join polls and VBM data
+    join = all_mail.merge(polls, on='VPH HomePrecinct Number', how='outer', suffixes=(None, '_polls')).merge(cvr, on='VPH HomePrecinct Number', how='outer', suffixes=(None, '_cvr')).merge(total, on='VPH HomePrecinct Number', how='outer', suffixes=(None, '_total'))
+    join = join[['Mail', 'VPH HomePrecinct Number', 'Drop Box', 'Vote Center Drop Off', '# of Votes accepted',
+                '# of Votes accepted_cvr', '# of Votes accepted_total']]
+    join.rename(columns = {
+        '# of Votes accepted' : 'In Person Live Ballot',
+        '# of Votes accepted_cvr' : 'Conditional Voter Registration',
+        '# of Votes accepted_total' : 'Total Votes',
         'VPH HomePrecinct Number' : 'PrecinctNumber'
     }, inplace=True)
-    # join polls and VBM data
-    join = all_mail.merge(polls, on='PrecinctNumber', how='outer', suffixes=(None, '_x'))
-    [ join[col].fillna(value=join[col + '_x'], inplace=True) for col in join if col + '_x' in join]
-    join.rename(
-        columns = {'# of Votes accepted' : 'In Person Live Ballot',}, 
-        inplace=True)
-    join.drop(
-        columns=[col for col in join if '_x' in col or 'VBM' in col or 'Voting' in col], 
-        inplace=True)
-    # sum types of ballots cast to create total votes variable
-    # first changing nas to 0s so as to be able to sum
-    join[['Mail', 'In Person Live Ballot', 'Drop Box']] = join[[
-        'Mail', 
-        'In Person Live Ballot', 
-        'Drop Box']].fillna(value=0)
-    join['Total Votes'] = join['Mail'] + join['Drop Box'] + join['In Person Live Ballot']
+    # change nas to 0s
+    join[['Mail', 'In Person Live Ballot', 'Drop Box', 'Vote Center Drop Off', 
+      'Conditional Voter Registration', 'Total Votes']] = join[[
+          'Mail', 'In Person Live Ballot', 'Drop Box', 'Vote Center Drop Off', 
+          'Conditional Voter Registration', 'Total Votes']].fillna(value=0)
 
     # merge voting data and registered voter data after first formatting 
     # precinct number
     reg['Voter Precinct Number'] = reg['Voter Precinct Number'].astype(str).apply(lambda x: x.replace(".", "").replace("-", ""))
-    # retain total number of registered voters
-    total_reg = reg['# of Active Voters'].sum()
     join['PrecinctNumber'] = join['PrecinctNumber'].astype(str).apply(lambda x: x.replace(".", "").replace("-", ""))
     df = reg.merge(
         join, 
@@ -124,22 +118,29 @@ def process_precincts(precincts_shape, registered_voters, voters, output_loc, re
         suffixes=(None, '_voter'))
     # clean up data
     df.rename(columns = {'# of Active Voters' : 'Number of Active Voters'},inplace=True)
+    print('Number of precincts with voting data without registered voter data:', len(df.loc[df['Voter Precinct Number'].isna()]))
+    # fill registered voter precinct number with voting data precinct number 
+    df['precinct'] = np.where(df['PrecinctNumber'].notnull(), df['PrecinctNumber'], df['Voter Precinct Number'])
+    df.drop(columns=['PrecinctNumber', 'Voter Precinct Number', 'Voter County', 'Voter Precinct Name'], inplace=True)
     # add percent votes variable, first filling nas with 0s in registered voter and voter cols
-    cols = ['Total Votes', 'Mail', 'In Person Live Ballot', 'Drop Box']
+    cols = ['Total Votes', 'Mail', 'In Person Live Ballot', 'Drop Box', 'Vote Center Drop Off', 
+        'Conditional Voter Registration', 'Number of Active Voters']
     for col in cols:
-        df[col] = df.loc[df['Number of Active Voters'].notnull(), col].fillna(0)
+        df[col] = df[col].fillna(0)
     df['pctvote'] = round((df['Total Votes']/df['Number of Active Voters'])*100, 2)
     print('Number of precincts dropped with more voters than registered voters:',
-        str(len(df.loc[df['pctvote'] > 100])))
+        str(len(df.loc[(df['Number of Active Voters'] > 0) & (df['pctvote'] > 100)])))
     # alternatively set pct vote to na for these tracts if we want to keep the data
     # but not have it affect the color mapping
     df = df.loc[df['pctvote'] <= 100]
     # hardcode tooltip columns to read as strings with percent rounded to one decimal
     # and total (e.g. "33.1% (4)""). In the future, take this out and style in js code
-    new_cols = ['Percent Votes Cast', 'Percent Mail', 'Percent Poll', 'Percent Drop Box']
+    cols = ['Total Votes', 'Mail', 'In Person Live Ballot', 'Drop Box', 'Vote Center Drop Off']
+    new_cols = ['Percent Votes Cast', 'Percent Mail', 'Percent Poll', 'Percent Drop Box', 
+                'Percent Vote Center Drop Off']
     for idx, row in df.iterrows():
         for i, col in enumerate(cols):
-            if col == 'Total Votes':
+            if (col == 'Total Votes') & (row['Number of Active Voters'] > 0):
                 pct = round((row[col]/row['Number of Active Voters'])*100, 1)
             elif row['Total Votes'] > 0:
                 pct = round((row[col]/row['Total Votes'])*100, 1)
@@ -151,7 +152,6 @@ def process_precincts(precincts_shape, registered_voters, voters, output_loc, re
                 df.at[idx, new_cols[i]] = str(pct) + '%'
             else:
                 df.at[idx, new_cols[i]] = str(pct) + '% (' + str(int(row[col])) + ')'
-    df['precinct'] = np.where(df['PrecinctNumber'].notnull(), df['PrecinctNumber'], df['Voter Precinct Number'])
                 
     # setup spatial data
     # join processed precinct data with precinct shapefile
@@ -164,30 +164,41 @@ def process_precincts(precincts_shape, registered_voters, voters, output_loc, re
             how='outer'
         ), 
         geometry='geometry')
-    # drop precincts with no precinct number
-    # this should just be one precinct
+    # drop precincts without a valid precinct number 
     print('Number of precincts dropped without a valid precinct number:', len(gdf[gdf['PRECINCT'].isna()]))
     gdf = gdf[~gdf['PRECINCT'].isna()]
     # create county level summary variables
     # hardcode in styling - in the future take this out and style in js
+    total_votes = vote['# of Votes accepted'].sum()
+    total_reg = reg['# of Active Voters'].sum()
     pct = str(round((total_votes/total_reg)*100, 2)) + '%'
     reg_voters = str("{:,}".format(total_reg)).split('.')[0]
     voters = str("{:,}".format(total_votes)).split('.')[0]
-    mail = str("{:,}".format(gdf['Mail'].sum())).split('.')[0]
-    pct_mail = str(round((gdf['Mail'].sum()/total_votes)*100, 2)) + '% (' + mail + ')'
-    db = str("{:,}".format(gdf['Drop Box'].sum())).split('.')[0]
-    pct_db = str(round((gdf['Drop Box'].sum()/total_votes)*100, 2)) + '% (' + db + ')'
-    poll = str("{:,}".format(gdf['In Person Live Ballot'].sum())).split('.')[0]
-    pct_poll = str(round((gdf['In Person Live Ballot'].sum()/total_votes)*100, 2)) + '% (' + poll + ')'
+    cvr = str("{:,}".format(vote.loc[vote['Voting Type'] == 'CVR', '# of Votes accepted'].sum())).split('.')[0]
+    total_mail = vote.loc[vote['VBM Return Method Code'] == 'Mail', '# of Votes accepted'].sum()
+    mail = str("{:,}".format(total_mail)).split('.')[0]
+    pct_mail = str(round((total_mail/total_votes)*100, 2)) + '% (' + mail + ')'
+    total_db = vote.loc[vote['VBM Return Method Code'] == 'Drop Box', '# of Votes accepted'].sum()
+    db = str("{:,}".format(total_db)).split('.')[0]
+    pct_db = str(round((total_db/total_votes)*100, 2)) + '% (' + db + ')'
+    total_poll = vote.loc[vote['Voting Type'] == 'In Person Live Ballot', '# of Votes accepted'].sum()
+    poll = str("{:,}".format(total_poll)).split('.')[0]
+    pct_poll = str(round((total_poll/total_votes)*100, 2)) + '% (' + poll + ')'
+    total_do = vote.loc[vote['VBM Return Method Code'] == 'Vote Center Drop Off', '# of Votes accepted'].sum()
+    do = str("{:,}".format(total_do)).split('.')[0]
+    pct_do = str(round((total_do/total_votes)*100, 2)) + '% (' + do + ')'
     # reduce the number of columns in gdf to minimize output file size
     gdf = gdf[['PRECINCT', 'geometry', 'Number of Active Voters', 'Total Votes',
-            'pctvote', 'Percent Votes Cast', 'Percent Mail', 'Percent Drop Box', 
-            'Percent Poll']]
+        'pctvote', 'Percent Votes Cast', 'Percent Mail', 'Percent Drop Box', 
+        'Percent Poll', 'Percent Vote Center Drop Off', 'Conditional Voter Registration']]
     gdf.rename(columns = {'PRECINCT' : 'precinct'}, inplace = True)
     # hardcode how nan and int values are displayed - in the future style in js
-    gdf['Number of Active Voters'] = gdf['Number of Active Voters'].astype(str).replace('nan', 'n/a').str.split('.').str[0]
-    gdf['Total Votes'] = gdf['Total Votes'].astype(str).replace('nan', 'n/a').str.split('.').str[0]
-    gdf[['Number of Active Voters', 'Total Votes', 'Percent Votes Cast', 'Percent Mail', 'Percent Drop Box', 'Percent Poll']] = gdf[['Number of Active Voters', 'Total Votes', 'Percent Votes Cast', 'Percent Mail', 'Percent Drop Box', 'Percent Poll']].fillna('n/a')
+    cols = ['Number of Active Voters', 'Total Votes', 'Conditional Voter Registration']
+    for col in cols:
+        gdf[col] = gdf[col].astype(str).replace('nan', 'n/a').str.split('.').str[0]
+    cols = ['Percent Votes Cast', 'Percent Mail', 'Percent Drop Box', 'Percent Poll', 'Percent Vote Center Drop Off']
+    for col in cols:
+        gdf[col] = gdf[col].fillna('n/a')
     # round coordinate decimals and simplify geometry if reducing file size
     if reduce_file == True:
         gdf = round_gdf(gdf)
@@ -195,10 +206,12 @@ def process_precincts(precincts_shape, registered_voters, voters, output_loc, re
     gdf = gdf.append({
         'Number of Active Voters' : reg_voters,
         'Total Votes' : voters,
+        'Conditional Voter Registration' : cvr,
         'Percent Votes Cast' : pct,
         'Percent Mail' : pct_mail,
         'Percent Drop Box' : pct_db,
-        'Percent Poll' : pct_poll}, ignore_index=True)
+        'Percent Poll' : pct_poll,
+        'Percent Vote Center Drop Off' : pct_do}, ignore_index=True)
     # write to geojson with date and time in filename
     today = date.today()
     current_time = datetime.now().hour
