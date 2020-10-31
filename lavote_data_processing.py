@@ -69,6 +69,8 @@ def process_precincts(precincts_shape, registered_voters, voters, output_loc, re
     prec = gpd.read_file(precincts_shape)
     reg = pd.read_csv(registered_voters)
     vote = pd.read_csv(voters)
+    # retain total number of votes of all types
+    total_votes = vote['# of Votes accepted'].sum()
     # break out VBM data by mail and drop box
     mail = vote.loc[vote['VBM Return Method Code'] == 'Mail']
     db = vote.loc[vote['VBM Return Method Code'] == 'Drop Box']
@@ -111,6 +113,8 @@ def process_precincts(precincts_shape, registered_voters, voters, output_loc, re
     # merge voting data and registered voter data after first formatting 
     # precinct number
     reg['Voter Precinct Number'] = reg['Voter Precinct Number'].astype(str).apply(lambda x: x.replace(".", "").replace("-", ""))
+    # retain total number of registered voters
+    total_reg = reg['# of Active Voters'].sum()
     join['PrecinctNumber'] = join['PrecinctNumber'].astype(str).apply(lambda x: x.replace(".", "").replace("-", ""))
     df = reg.merge(
         join, 
@@ -166,16 +170,15 @@ def process_precincts(precincts_shape, registered_voters, voters, output_loc, re
     gdf = gdf[~gdf['PRECINCT'].isna()]
     # create county level summary variables
     # hardcode in styling - in the future take this out and style in js
-    pct = str(round((gdf['Total Votes'].sum()/gdf['Number of Active Voters'].sum())*100, 2)) + '%'
-    reg_voters = str("{:,}".format(gdf['Number of Active Voters'].sum())).split('.')[0]
-    voters = str("{:,}".format(gdf['Total Votes'].sum())).split('.')[0]
+    pct = str(round((total_votes/total_reg)*100, 2)) + '%'
+    reg_voters = str("{:,}".format(total_reg)).split('.')[0]
+    voters = str("{:,}".format(total_votes)).split('.')[0]
     mail = str("{:,}".format(gdf['Mail'].sum())).split('.')[0]
-    pct_mail = str(round((gdf['Mail'].sum()/gdf['Total Votes'].sum())*100, 2)) + '% (' + mail + ')'
+    pct_mail = str(round((gdf['Mail'].sum()/total_votes)*100, 2)) + '% (' + mail + ')'
     db = str("{:,}".format(gdf['Drop Box'].sum())).split('.')[0]
-    pct_db = str(round((gdf['Drop Box'].sum()/gdf['Total Votes'].sum())*100, 2)) + '% (' + db + ')'
-    pct_poll = str(round((gdf['In Person Live Ballot'].sum()/gdf['Total Votes'].sum())*100, 2)) + '% (' + str(gdf['In Person Live Ballot'].sum()) + ')'
+    pct_db = str(round((gdf['Drop Box'].sum()/total_votes)*100, 2)) + '% (' + db + ')'
     poll = str("{:,}".format(gdf['In Person Live Ballot'].sum())).split('.')[0]
-    pct_poll = str(round((gdf['In Person Live Ballot'].sum()/gdf['Total Votes'].sum())*100, 2)) + '% (' + poll + ')'
+    pct_poll = str(round((gdf['In Person Live Ballot'].sum()/total_votes)*100, 2)) + '% (' + poll + ')'
     # reduce the number of columns in gdf to minimize output file size
     gdf = gdf[['PRECINCT', 'geometry', 'Number of Active Voters', 'Total Votes',
             'pctvote', 'Percent Votes Cast', 'Percent Mail', 'Percent Drop Box', 
@@ -237,10 +240,11 @@ def process_votecenters(votecenter_gjson, votecenter_voters, votecenter_alloc, o
     vc.loc[vc['Vote Location Name'].str.contains('POP UP'), 'Vote Location Name'] = vc['Vote Location Name'].str.replace(' - RR/CC', '')
     vc.loc[vc['Vote Location Name'].str.contains('SKIRBALL'), 'Vote Location Name'] = vc['Vote Location Name'].str.replace(' 1', '' )
     vc.loc[vc['Vote Location Name'].str.contains('DOROTHY CHANDLER'), 'Vote Location Name'] = vc['Vote Location Name'].str.replace('CHANDLER', 'CHANDLER,' )
-
     # join geojson and voter data
     merged = vc_gdf.merge(vc, left_on='Name', right_on='Vote Location Name', how='outer')
     print("Number of Vote Centers with voting data without a match:", len(merged[merged['Address'].isna()]))
+    # code to output mismatches to csv if vote center names need to be cleaned
+    ## vc_mismatches = merged.loc[merged['Address'].isna()].to_csv('data/testing/vc_mismatches.csv')
     # join vote center allocation data with vote center shapes and vote data
     vc_final = merged.merge(vc_alloc, left_on='Vote Location Id', right_on='vote_center_sos_id', how='outer')
     print('Number of Vote Centers with allocation data without a match:', 
