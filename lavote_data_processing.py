@@ -70,13 +70,17 @@ def process_precincts(precincts_shape, registered_voters, voters, output_loc, re
     reg = pd.read_csv(registered_voters)
     vote = pd.read_csv(voters)
     # break out VBM data by mail, drop box, and vote center drop box
-    total = vote.groupby('VPH HomePrecinct Number').sum().reset_index()
-    cvr = vote.loc[vote['Voting Type'] == 'CVR']
     mail = vote.loc[vote['VBM Return Method Code'] == 'Mail']
+    mail = vote.groupby(['VPH HomePrecinct Number']).sum().reset_index()
+    mail['VBM Return Method Code'] = 'Mail'
     db = vote.loc[vote['VBM Return Method Code'] == 'Drop Box']
+    db = vote.groupby(['VPH HomePrecinct Number']).sum().reset_index()
+    db['VBM Return Method Code'] = 'Drop Box'
     do = vote.loc[vote['VBM Return Method Code'] == 'Vote Center Drop Off']
+    do = vote.groupby(['VPH HomePrecinct Number']).sum().reset_index()
+    do['VBM Return Method Code'] = 'Vote Center Drop Off'
     # reshapeVBM data
-    all_mail = mail.merge(db, on='VPH HomePrecinct Number', how='outer', suffixes=(None, '_db')).merge(do, on='VPH HomePrecinct Number', how='outer', suffixes=(None, '_do'))
+    all_mail = mail.merge(db, on='VPH HomePrecinct Number', how='outer', suffixes=(None, '_db'), validate='1:1').merge(do, on='VPH HomePrecinct Number', how='outer', suffixes=(None, '_do'), validate='1:1')
     all_mail.loc[all_mail['VBM Return Method Code_db'].notnull(), 'VBM Return Method Code'] = all_mail['VBM Return Method Code_db']
     all_mail.loc[all_mail['VBM Return Method Code_do'].notnull(), 'VBM Return Method Code'] = all_mail['VBM Return Method Code_do']
     all_mail = all_mail[['# of Votes accepted', 'VPH HomePrecinct Number', '# of Votes accepted_db', '# of Votes accepted_do']]
@@ -85,15 +89,19 @@ def process_precincts(precincts_shape, registered_voters, voters, output_loc, re
         '# of Votes accepted_db' : 'Drop Box',
         '# of Votes accepted_do' : 'Vote Center Drop Off',
     }, inplace=True)
-    all_mail['Vote Center Drop Off'] = all_mail['Vote Center Drop Off'].astype('Int64')
-    all_mail['Mail'] = all_mail['Mail'].astype('Int64')
-    all_mail['Drop Box'] = all_mail['Drop Box'].astype('Int64')
     # reshape in-person polls data
     polls = vote.loc[vote['Voting Type'] == 'In Person Live Ballot']
-    # join polls and VBM data
-    join = all_mail.merge(polls, on='VPH HomePrecinct Number', how='outer', suffixes=(None, '_polls')).merge(cvr, on='VPH HomePrecinct Number', how='outer', suffixes=(None, '_cvr')).merge(total, on='VPH HomePrecinct Number', how='outer', suffixes=(None, '_total'))
+    polls = polls.groupby(['VPH HomePrecinct Number']).sum().reset_index()
+    polls['Voting Type'] = 'In Person Live Ballot'
+    # reshape total votes cast and cvr data
+    total = vote.groupby('VPH HomePrecinct Number').sum().reset_index()
+    cvr = vote.loc[vote['Voting Type'] == 'CVR']
+    cvr = vote.groupby(['VPH HomePrecinct Number']).sum().reset_index()
+    cvr['Voting Type'] = 'CVR'
+    # join total votes, CVR, in-person, and VBM data
+    join = all_mail.merge(polls, on='VPH HomePrecinct Number', how='outer', validate='1:1').merge(cvr, on='VPH HomePrecinct Number', how='outer', suffixes=(None, '_cvr'), validate='1:1').merge(total, on='VPH HomePrecinct Number', how='outer', suffixes=(None, '_total'), validate='1:1')
     join = join[['Mail', 'VPH HomePrecinct Number', 'Drop Box', 'Vote Center Drop Off', '# of Votes accepted',
-                '# of Votes accepted_cvr', '# of Votes accepted_total']]
+            '# of Votes accepted_cvr', '# of Votes accepted_total']]
     join.rename(columns = {
         '# of Votes accepted' : 'In Person Live Ballot',
         '# of Votes accepted_cvr' : 'Conditional Voter Registration',
@@ -110,12 +118,7 @@ def process_precincts(precincts_shape, registered_voters, voters, output_loc, re
     # precinct number
     reg['Voter Precinct Number'] = reg['Voter Precinct Number'].astype(str).apply(lambda x: x.replace(".", "").replace("-", ""))
     join['PrecinctNumber'] = join['PrecinctNumber'].astype(str).apply(lambda x: x.replace(".", "").replace("-", ""))
-    df = reg.merge(
-        join, 
-        left_on='Voter Precinct Number', 
-        right_on='PrecinctNumber', 
-        how='outer', 
-        suffixes=(None, '_voter'))
+    df = reg.merge(join, left_on='Voter Precinct Number', right_on='PrecinctNumber', how='outer', suffixes=(None, '_voter'), validate='1:1')
     # clean up data
     df.rename(columns = {'# of Active Voters' : 'Number of Active Voters'},inplace=True)
     print('Number of precincts with voting data without registered voter data:', len(df.loc[df['Voter Precinct Number'].isna()]))
@@ -156,14 +159,7 @@ def process_precincts(precincts_shape, registered_voters, voters, output_loc, re
     # setup spatial data
     # join processed precinct data with precinct shapefile
     prec['PRECINCT'] = prec['PRECINCT'].astype(str)
-    gdf = gpd.GeoDataFrame(
-        prec.merge(
-            df, 
-            left_on='PRECINCT',
-            right_on='precinct',
-            how='outer'
-        ), 
-        geometry='geometry')
+    gdf = gpd.GeoDataFrame(prec.merge(df, left_on='PRECINCT', right_on='precinct', how='outer', validate='1:1'), geometry='geometry')
     # drop precincts without a valid precinct number 
     print('Number of precincts dropped without a valid precinct number:', len(gdf[gdf['PRECINCT'].isna()]))
     gdf = gdf[~gdf['PRECINCT'].isna()]
