@@ -71,13 +71,13 @@ def process_precincts(precincts_shape, registered_voters, voters, output_loc, re
     vote = pd.read_csv(voters)
     # break out VBM data by mail, drop box, and vote center drop box
     mail = vote.loc[vote['VBM Return Method Code'] == 'Mail']
-    mail = vote.groupby(['VPH HomePrecinct Number']).sum().reset_index()
+    mail = mail.groupby(['VPH HomePrecinct Number']).sum().reset_index()
     mail['VBM Return Method Code'] = 'Mail'
     db = vote.loc[vote['VBM Return Method Code'] == 'Drop Box']
-    db = vote.groupby(['VPH HomePrecinct Number']).sum().reset_index()
+    db = db.groupby(['VPH HomePrecinct Number']).sum().reset_index()
     db['VBM Return Method Code'] = 'Drop Box'
     do = vote.loc[vote['VBM Return Method Code'] == 'Vote Center Drop Off']
-    do = vote.groupby(['VPH HomePrecinct Number']).sum().reset_index()
+    do = do.groupby(['VPH HomePrecinct Number']).sum().reset_index()
     do['VBM Return Method Code'] = 'Vote Center Drop Off'
     # reshapeVBM data
     all_mail = mail.merge(db, on='VPH HomePrecinct Number', how='outer', suffixes=(None, '_db'), validate='1:1').merge(do, on='VPH HomePrecinct Number', how='outer', suffixes=(None, '_do'), validate='1:1')
