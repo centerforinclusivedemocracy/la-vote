@@ -210,11 +210,7 @@ def process_precincts(precincts_shape, registered_voters, voters, output_loc, re
         'Percent Vote Center Drop Off' : pct_do}, ignore_index=True)
     # write to geojson with date and time in filename
     today = date.today()
-    current_time = datetime.now().hour
-    if current_time > 12:
-        time = 'PM'
-    else:
-        time = 'AM'
+    time = datetime.now().strftime('%I%p')
     gdf.to_file(f'{output_loc}/precincts/la_precincts_{today}_{time}.geojson', driver='GeoJSON')
 
 
@@ -271,10 +267,6 @@ def process_votecenters(votecenter_gjson, votecenter_voters, votecenter_alloc, o
     vc_final['size'] = vc_final['size'].str.title()
     # write to geojson
     today = date.today()
-    current_time = datetime.now().hour
-    if current_time > 12:
-        time = 'PM'
-    else:
-        time = 'AM'
+    time = datetime.now().strftime('%I%p')
     vc_final.to_file(f'{output_loc}/vote_centers/vote_centers_{today}_{time}.geojson', 
     driver='GeoJSON')
