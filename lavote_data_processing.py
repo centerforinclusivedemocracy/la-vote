@@ -167,7 +167,7 @@ def process_precincts(precincts_shape, registered_voters, voters, output_loc, re
     # hardcode in styling - in the future take this out and style in js
     total_votes = vote['# of Votes accepted'].sum()
     total_reg = reg['# of Active Voters'].sum()
-    pct = str(round((total_votes/total_reg)*100, 2)) + '%'
+    pct = str(round((total_votes/total_reg)*100, 1)) + '%'
     reg_voters = str("{:,}".format(total_reg)).split('.')[0]
     voters = str("{:,}".format(total_votes)).split('.')[0]
     cvr = str("{:,}".format(vote.loc[vote['Voting Type'] == 'CVR', '# of Votes accepted'].sum())).split('.')[0]
