@@ -130,7 +130,7 @@ def process_precincts(precincts_shape, registered_voters, voters, output_loc, re
         'Conditional Voter Registration', 'Number of Active Voters']
     for col in cols:
         df[col] = df[col].fillna(0)
-    df['pctvote'] = round((df['Total Votes']/df['Number of Active Voters'])*100, 2)
+    df['pctvote'] = round((df['Total Votes']/df['Number of Active Voters'])*100, 1)
     print('Number of precincts dropped with more voters than registered voters:',
         str(len(df.loc[(df['Number of Active Voters'] > 0) & (df['pctvote'] > 100)])))
     # alternatively set pct vote to na for these tracts if we want to keep the data
@@ -173,16 +173,16 @@ def process_precincts(precincts_shape, registered_voters, voters, output_loc, re
     cvr = str("{:,}".format(vote.loc[vote['Voting Type'] == 'CVR', '# of Votes accepted'].sum())).split('.')[0]
     total_mail = vote.loc[vote['VBM Return Method Code'] == 'Mail', '# of Votes accepted'].sum()
     mail = str("{:,}".format(total_mail)).split('.')[0]
-    pct_mail = str(round((total_mail/total_votes)*100, 2)) + '% (' + mail + ')'
+    pct_mail = str(round((total_mail/total_votes)*100, 1)) + '% (' + mail + ')'
     total_db = vote.loc[vote['VBM Return Method Code'] == 'Drop Box', '# of Votes accepted'].sum()
     db = str("{:,}".format(total_db)).split('.')[0]
-    pct_db = str(round((total_db/total_votes)*100, 2)) + '% (' + db + ')'
+    pct_db = str(round((total_db/total_votes)*100, 1)) + '% (' + db + ')'
     total_poll = vote.loc[vote['Voting Type'] == 'In Person Live Ballot', '# of Votes accepted'].sum()
     poll = str("{:,}".format(total_poll)).split('.')[0]
-    pct_poll = str(round((total_poll/total_votes)*100, 2)) + '% (' + poll + ')'
+    pct_poll = str(round((total_poll/total_votes)*100, 1)) + '% (' + poll + ')'
     total_do = vote.loc[vote['VBM Return Method Code'] == 'Vote Center Drop Off', '# of Votes accepted'].sum()
     do = str("{:,}".format(total_do)).split('.')[0]
-    pct_do = str(round((total_do/total_votes)*100, 2)) + '% (' + do + ')'
+    pct_do = str(round((total_do/total_votes)*100, 1)) + '% (' + do + ')'
     # reduce the number of columns in gdf to minimize output file size
     gdf = gdf[['PRECINCT', 'geometry', 'Number of Active Voters', 'Total Votes',
         'pctvote', 'Percent Votes Cast', 'Percent Mail', 'Percent Drop Box', 
