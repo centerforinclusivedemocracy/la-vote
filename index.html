@@ -352,181 +352,196 @@ function onEachFeature(feature, layer) {
 
 info.addTo(map);
 
-/////////////////////////////////////
+// Collapsible Data box 
 
-L.Control.Info = L.Control.extend({     
+// L.Control.Info = L.Control.extend({     
 
-options: {
-  title: 'Info',
-  titleTooltip: 'Click here for more info',
-  content: '',
-  maxWidth: '250px',
-  titleClass: '',
-  contentClass: ''
-},
+// options: {
+//   title: 'Info',
+//   titleTooltip: 'Click here for more info',
+//   content: '',
+//   maxWidth: '250px',
+//   titleClass: '',
+//   contentClass: ''
+//   },
 
-initialize: function(options) {        
-  L.Util.setOptions(this, options);
-  this._infoContainer = null;
-  this._infoTitleContainer = null;
-  this._infoBodyContainer = null;
-  this._infoCloseButtonContainer = null;
-  this._infoContentContainer = null;
-  this._infoTitle = this.options.title;
-  this._infoTitleTooltip = this.options.titleTooltip;
-  this._infoContent = this.options.content;
-  this._titleShown = false;
-  this._titleClass = this.options.titleClass;
-  this._contentClass = this.options.contentClass;
-  this._infoTitleStyle = 'padding: 5px;';
-  this._infoContainerClasses = 'leaflet-control-layers leaflet-control';
-},
+// initialize: function(options) {        
+//   L.Util.setOptions(this, options);
+//   this._infoContainer = null;
+//   this._infoTitleContainer = null;
+//   this._infoBodyContainer = null;
+//   this._infoCloseButtonContainer = null;
+//   this._infoContentContainer = null;
+//   this._infoTitle = this.options.title;
+//   this._infoTitleTooltip = this.options.titleTooltip;
+//   this._infoContent = this.options.content;
+//   this._titleShown = false;
+//   this._titleClass = this.options.titleClass;
+//   this._contentClass = this.options.contentClass;
+//   this._infoTitleStyle = 'padding: 5px;';
+//   this._infoContainerClasses = 'leaflet-control-layers leaflet-control';
+// },
 
-onAdd: function(map) {
-  var infoContainer = L.DomUtil.create('div', 'leaflet-control-layers');
+// onAdd: function(map) {
+//   var infoContainer = L.DomUtil.create('div', 'leaflet-control-layers');
 
-  var infoTitle = L.DomUtil.create('div');
-  infoContainer.appendChild(infoTitle);
-  infoTitle.setAttribute('style', this._infoTitleStyle);
+//   var infoTitle = L.DomUtil.create('div');
+//   infoContainer.appendChild(infoTitle);
+//   infoTitle.setAttribute('style', this._infoTitleStyle);
 
-  var infoBody = L.DomUtil.create('div', 'leaflet-popup-content-wraper');
-  infoContainer.appendChild(infoBody);
-  infoBody.setAttribute('style', 'max-width:' + this.options.maxWidth);
+//   var infoBody = L.DomUtil.create('div', 'leaflet-popup-content-wraper');
+//   infoContainer.appendChild(infoBody);
+//   infoBody.setAttribute('style', 'max-width:' + this.options.maxWidth);
 
-  var infoContent = L.DomUtil.create('div', 'leaflet-popup-content');
-  infoBody.appendChild(infoContent);
+//   var infoContent = L.DomUtil.create('div', 'leaflet-popup-content');
+//   infoBody.appendChild(infoContent);
 
-  var infoCloseButton = L.DomUtil.create('a', 'leaflet-popup-close-button');
-  infoContainer.appendChild(infoCloseButton);
-  infoCloseButton.innerHTML = 'x';
-  infoCloseButton.setAttribute('style', 'cursor: pointer');
+//   var infoCloseButton = L.DomUtil.create('a', 'leaflet-popup-close-button');
+//   infoContainer.appendChild(infoCloseButton);
+//   infoCloseButton.innerHTML = 'x';
+//   infoCloseButton.setAttribute('style', 'cursor: pointer');
 
-      this._infoContainer = infoContainer;
-      this._infoTitleContainer = infoTitle;
-      this._infoBodyContainer = infoBody;
-      this._infoContentContainer = infoContent;
-      this._infoCloseButtonContainer = infoCloseButton;
+//       this._infoContainer = infoContainer;
+//       this._infoTitleContainer = infoTitle;
+//       this._infoBodyContainer = infoBody;
+//       this._infoContentContainer = infoContent;
+//       this._infoCloseButtonContainer = infoCloseButton;
 
-  infoTitle.innerHTML = this._infoTitle;
-  infoContent.innerHTML = this._infoContent;
-  this._showTitle();
+//   infoTitle.innerHTML = this._infoTitle;
+//   infoContent.innerHTML = this._infoContent;
+//   this._showTitle();
 
-      L.DomEvent.disableClickPropagation(infoContainer);
-      L.DomEvent.on(infoCloseButton, 'click', L.DomEvent.stop);
-      L.DomEvent.on(infoContainer, 'click', this._showContent, this);
-      L.DomEvent.on(infoCloseButton, 'click', this._showTitle, this);
+//       L.DomEvent.disableClickPropagation(infoContainer);
+//       L.DomEvent.on(infoCloseButton, 'click', L.DomEvent.stop);
+//       L.DomEvent.on(infoContainer, 'click', this._showContent, this);
+//       L.DomEvent.on(infoCloseButton, 'click', this._showTitle, this);
 
-  return infoContainer;
-},
+//   return infoContainer;
+// },
 
-onRemove: function(map){},
+// onRemove: function(map){},
 
-setTitle: function(title) {
-  this._infoTitle = title;
-  if (this._infoTitleContainer != null) {
-    this._infoTitleContainer.innerHTML = title;
-  }
-},
+// setTitle: function(title) {
+//   this._infoTitle = title;
+//   if (this._infoTitleContainer != null) {
+//     this._infoTitleContainer.innerHTML = title;
+//   }
+// },
 
-setTitleTooltip: function(titleTooltip) {
-  this._infoTitleTooltip = titleTooltip;
-  if (this._titleShown) {
-    this._showTitleTooltip(true);
-  }
-},
+// setTitleTooltip: function(titleTooltip) {
+//   this._infoTitleTooltip = titleTooltip;
+//   if (this._titleShown) {
+//     this._showTitleTooltip(true);
+//   }
+// },
 
-setContent: function(content) {
-  this._infoContent = content;
-  if (this._infoContentContainer != null) {
-    this._infoContentContainer.innerHTML = content;
-  }
-},
+// setContent: function(content) {
+//   this._infoContent = content;
+//   if (this._infoContentContainer != null) {
+//     this._infoContentContainer.innerHTML = content;
+//   }
+// },
 
-setTitleClass: function(titleClass) {
-  this._titleClass = titleClass;
-  if (this._titleShown) {
-    this._addInfoClass(this._titleClass);
-  }
-},
+// setTitleClass: function(titleClass) {
+//   this._titleClass = titleClass;
+//   if (this._titleShown) {
+//     this._addInfoClass(this._titleClass);
+//   }
+// },
 
-setContentClass: function(contentClass) {
-  this._contentClass = contentClass;
-  if (!this._titleShown) {
-    this._addInfoClass(this._contentClass);
-  }
-},
+// setContentClass: function(contentClass) {
+//   this._contentClass = contentClass;
+//   if (!this._titleShown) {
+//     this._addInfoClass(this._contentClass);
+//   }
+// },
 
-_showTitle: function (evt) {
-  this._addInfoClass(this._titleClass);
-  this._displayElement(this._infoTitleContainer, true);
-  this._displayElement(this._infoBodyContainer, false);
-  this._displayElement(this._infoCloseButtonContainer, false);
-  this._showTitleTooltip(true);
-  this._setCursorToPointer(this._infoContainer, true);
-  this._titleShown = true;
-},
+// _showTitle: function (evt) {
+//   this._addInfoClass(this._titleClass);
+//   this._displayElement(this._infoTitleContainer, true);
+//   this._displayElement(this._infoBodyContainer, false);
+//   this._displayElement(this._infoCloseButtonContainer, false);
+//   this._showTitleTooltip(true);
+//   this._setCursorToPointer(this._infoContainer, true);
+//   this._titleShown = true;
+// },
 
-_showContent: function (evt) {
-  this._addInfoClass(this._contentClass);
-  this._displayElement(this._infoTitleContainer, false);
-  this._displayElement(this._infoBodyContainer, true);
-  this._displayElement(this._infoCloseButtonContainer, true);
-  this._showTitleTooltip(false);
-  this._setCursorToPointer(this._infoContainer, false);
-  this._titleShown = false;
-},
+// _showContent: function (evt) {
+//   this._addInfoClass(this._contentClass);
+//   this._displayElement(this._infoTitleContainer, false);
+//   this._displayElement(this._infoBodyContainer, true);
+//   this._displayElement(this._infoCloseButtonContainer, true);
+//   this._showTitleTooltip(false);
+//   this._setCursorToPointer(this._infoContainer, false);
+//   this._titleShown = false;
+// },
 
-_showTitleTooltip: function (showIt) {
-  this._infoContainer.setAttribute('Title', (showIt) ? this._infoTitleTooltip : '');
-},
+// _showTitleTooltip: function (showIt) {
+//   this._infoContainer.setAttribute('Title', (showIt) ? this._infoTitleTooltip : '');
+// },
 
-_displayElement: function (element, displayIt) {
-  element.style.display = (displayIt) ? '' : 'none';
-},
+// _displayElement: function (element, displayIt) {
+//   element.style.display = (displayIt) ? '' : 'none';
+// },
 
-_setCursorToPointer: function (element, setIt) {
-  element.style.cursor = (setIt) ? 'pointer' : '';
-},
+// _setCursorToPointer: function (element, setIt) {
+//   element.style.cursor = (setIt) ? 'pointer' : '';
+// },
 
-_addInfoClass: function (classToAdd) {
-  L.DomUtil.setClass(this._infoContainer, this._infoContainerClasses + ' ' + classToAdd);
-}
-});
+// _addInfoClass: function (classToAdd) {
+//   L.DomUtil.setClass(this._infoContainer, this._infoContainerClasses + ' ' + classToAdd);
+// }
+// });
 
-L.control.info = function(opts) {
-  return new L.Control.Info(opts);
-}
+// L.control.info = function(opts) {
+//   return new L.Control.Info(opts);
+// }
 
-var title = [];
-var tooltip = [];
-var text = [];
-var titleClass = [];
-var contentClass = [];
+// var title = [];
+// var tooltip = [];
+// var text = [];
+// var titleClass = [];
+// var contentClass = [];
 
-var i = 0;
-var j = 0;
+// var i = 0;
+// var j = 0;
 
-title[0] = '<b>About the Data</b>';
-tooltip[0] = 'Lorem ipsum dolor sit amet';
-text[0] = "<p style='margin-bottom: 6pt;'><b>Data Source: </b>California Secretary of State VoteCal System. Data by race and ethnicity of all voters are not available from the VoteCal system.<br><hr><br> <i>The LA County Early Ballot Count Tool was developed by the <a href='https://cid.usc.edu/' style='color:Blue;' target='_blank' rel='noopener noreferrer'> USC Center for Inclusive Democracy</a> in partnership with the California Secretary of State's Office.</i>"
-titleClass[0] = 'titleStyle1';
-contentClass[0] = 'contentStyle1';
+// title[0] = '<b>About the Data</b>';
+// tooltip[0] = 'Lorem ipsum dolor sit amet';
+// text[0] = "<p style='margin-bottom: 6pt;'><b>Data Source: </b>California Secretary of State VoteCal System. Data by race and ethnicity of all voters are not available from the VoteCal system.<br><hr><br> <i>The LA County Early Ballot Count Tool was developed by the <a href='https://cid.usc.edu/' style='color:Blue;' target='_blank' rel='noopener noreferrer'> USC Center for Inclusive Democracy</a> in partnership with the California Secretary of State's Office.</i>"
+// titleClass[0] = 'titleStyle1';
+// contentClass[0] = 'contentStyle1';
 
-myInfoControl = L.control.info({
-position: 'bottomright',
-title: title[0],
-titleTooltip: tooltip[0],
-titleClass: titleClass[0],
-contentClass: contentClass[0]
-});
+// myInfoControl = L.control.info({
+// position: 'bottomright',
+// title: title[0],
+// titleTooltip: tooltip[0],
+// titleClass: titleClass[0],
+// contentClass: contentClass[0]
+// });
 
-myInfoControl.setContent(text[0]);
+// myInfoControl.setContent(text[0]);
 
-myInfoControl.addTo(map);
+// myInfoControl.addTo(map);
 
 </script>
 
 <!-- Divs for text / legend -->
+<body>
+  
+    <div id='infobox' class='infobox'
+     style='position: absolute; z-index:9999; border:2px solid grey; width: 500px; background-color:rgba(255, 255, 255, 0.8);
+    border-radius:6px; padding: 3px; font-size:14px; right: 15px; bottom: 20px;'
+    >
+         
+    <div>
+        <b>Data Source</b>: California Secretary of State VoteCal System. Data by race and ethnicity of all voters are not available from the VoteCal system.<br><hr>
+        <i>The LA County Early Ballot Count Tool was developed by the <a href="https://cid.usc.edu/" style="color:Blue;" target="_blank" rel="noopener noreferrer"> USC Center for Inclusive Democracy</a> in partnership with the California Secretary of State's Office.</i>
+    </div>
+    </div>
+     
+    </body>
+
   <body>
   
   <div id='maplegend' class='maplegend' 
