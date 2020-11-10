@@ -96,7 +96,7 @@ def process_precincts(precincts_shape, registered_voters, voters, output_loc, re
     # reshape total votes cast and cvr data
     total = vote.groupby('VPH HomePrecinct Number').sum().reset_index()
     cvr = vote.loc[vote['Voting Type'] == 'CVR']
-    cvr = vote.groupby(['VPH HomePrecinct Number']).sum().reset_index()
+    cvr = cvr.groupby(['VPH HomePrecinct Number']).sum().reset_index()
     cvr['Voting Type'] = 'CVR'
     # join total votes, CVR, in-person, and VBM data
     join = all_mail.merge(polls, on='VPH HomePrecinct Number', how='outer', validate='1:1').merge(cvr, on='VPH HomePrecinct Number', how='outer', suffixes=(None, '_cvr'), validate='1:1').merge(total, on='VPH HomePrecinct Number', how='outer', suffixes=(None, '_total'), validate='1:1')
