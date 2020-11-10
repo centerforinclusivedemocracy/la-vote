@@ -2,6 +2,7 @@ import geopandas as gpd
 import pandas as pd
 import numpy as np
 import math
+import os 
 from datetime import date, datetime
 from shapely.geometry import Point, Polygon
 
@@ -212,6 +213,11 @@ def process_precincts(precincts_shape, registered_voters, voters, output_loc, re
     today = date.today()
     time = datetime.now().strftime('%I%p')
     gdf.to_file(f'{output_loc}/precincts/la_precincts_{today}_{time}.geojson', driver='GeoJSON')
+    with open(f'{output_loc}/precincts/la_precincts_{today}_{time}.geojson','r') as f:
+        d = f.read()
+    with open(f'{output_loc}/precincts/la_precincts_{today}_{time}.geojson','w') as f:
+        f.write('var la = '+d)
+    os.replace(f'{output_loc}/precincts/la_precincts_{today}_{time}.geojson', 'la_precincts.geojson')
 
 
 def process_votecenters(votecenter_gjson, votecenter_voters, votecenter_alloc, output_loc):
@@ -270,3 +276,8 @@ def process_votecenters(votecenter_gjson, votecenter_voters, votecenter_alloc, o
     time = datetime.now().strftime('%I%p')
     vc_final.to_file(f'{output_loc}/vote_centers/vote_centers_{today}_{time}.geojson', 
     driver='GeoJSON')
+    with open(f'{output_loc}/vote_centers/vote_centers_{today}_{time}.geojson','r') as f:
+        d = f.read()
+    with open(f'{output_loc}/vote_centers/vote_centers_{today}_{time}.geojson','w') as f:
+        f.write('var vc = '+d)
+    os.replace(f'{output_loc}/vote_centers/vote_centers_{today}_{time}.geojson', 'vote_centers.geojson')

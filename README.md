@@ -1,16 +1,11 @@
 # leaflet-map
 
-When updating data: 
+To update data: 
 
-- Assign js variable to data in new GeoJSON files in the first line before the first opening curly brace:
-  
-  la_precincts.geojson: `var la = ` 
-  
-  vote_centers.geojson: `var vc = `
-- Replace 'la_precincts.geojson' and 'vote_centers.geojson' with la_precincts_2020-10-XX_XX.geojson and vote_centers_2020_10_XX_XX.geojson, removing the date and time from the filename
-- Edit line 314 of index.html to read when data was last updated (time provided in filename from Mindy):
-
-  `<h5 align="center"style="font-size:12px">Last Updated: 7:00 pm on 10/29/2020</h5> `
+- Put zip file in 'most_recent' folder (no need to unzip)
+- Run process_data.py from the base (la-vote) folder
+- No further steps needed, just double-check by opening index.html in browser
+- "Last Updated" timestamp uses the name of the zip, so it won't work if the naming format changes. Everything else should still work, so just update that part manually in this case.
 
 ### Data processing:
 To process precinct and vote center voting data for LA county and output data as geojsons to be used in CID's LA Vote map, run process_data.py, edited with your file locations for the following variables:
