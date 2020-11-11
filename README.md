@@ -2,8 +2,8 @@
 
 To update data: 
 
-- Put zip file in 'most_recent' folder (no need to unzip)
-- Run process_data.py from the base (la-vote) folder
+- Put zip file in your 'GitHub/la-vote/data/most_recent' folder (no need to unzip)
+- Open command prompt, change your directory to your 'GitHub/la-vote' folder, and run 'python process_data.py'
 - No further steps needed, just double-check by opening index.html in browser
 - "Last Updated" timestamp uses the name of the zip, so it won't work if the naming format changes. Everything else should still work, so just update that part manually in this case.
 

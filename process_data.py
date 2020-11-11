@@ -11,14 +11,21 @@ votecenter_voters = 'data/most_recent/3- Count of in-person ballots cast for eac
 votecenter_alloc = 'data/static/LA Vote Center_allocations_20201027.xlsx'
 data_folder = 'data/most_recent/'
 
-print(sys.argv)
-
 most_recent_files = os.listdir(data_folder)
 zipfiles = [data_folder+file for file in most_recent_files if '.zip' in file]
+if len(zipfiles) == 0:
+	print("zip file not found, confirm you have moved it to",'GitHub/la-vote/'+data_folder)
+	sys.exit(42)
 zipfiles.sort(key=os.path.getmtime)
 most_recent_zip = zipfiles[-1] # Getting most recent file, assuming naming system is maintained
+print("Working on file:",most_recent_zip)
 with zipfile.ZipFile(most_recent_zip, 'r') as zip_ref:
 	zip_ref.extractall(data_folder)
+
+if not os.path.exists(output_loc+'/precincts'):
+	os.mkdir(output_loc+'/precincts')
+if not os.path.exists(output_loc+'/vote_centers'):
+	os.mkdir(output_loc+'/vote_centers')
 
 process_precincts(precincts_shape, registered_voters, voters, output_loc, reduce_file=True, places=6)
 process_votecenters(votecenter_gjson, votecenter_voters, votecenter_alloc, output_loc)
