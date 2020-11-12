@@ -161,21 +161,18 @@ var geojsonLayer = L.geoJson(vc, {
 function vc_style(feature, latlng) {
     switch(feature.properties["Vote Center Type"]) {
         case "Five-Day":
-            var five_day = new L.divIcon({
-                className: 'five',
-                    html: "<div style='background-color:#575556;' class='marker-pin'></div><i class='fa fa-building' style='color:#575556'></i>",
-                    iconSize: [30, 42],
-                    iconAnchor: [15, 42]
+                var lateIcon = L.icon({
+                    iconUrl: 'late.svg',
+                    iconSize: [(Math.sqrt(feature.properties["Number of Votes Accepted"])), (Math.sqrt(feature.properties["Number of Votes Accepted"]))],
                 });
-            return L.marker(latlng, {icon: five_day});
+            return L.marker(latlng, {icon: lateIcon});
         case "Eleven-Day":
-            var eleven_day = new L.divIcon({
-                className: 'eleven',
-                    html: "<div style='background-color:#4838cc;' class='marker-pin'></div><i class='fa fa-building' style='color:#4838cc'></i>",
-                    iconSize: [30, 42],
-                    iconAnchor: [15, 42]
+                var earlyIcon = L.icon({
+                    iconUrl: 'early.svg',
+                    iconSize: [(Math.sqrt(feature.properties["Number of Votes Accepted"])/1.25), (Math.sqrt(feature.properties["Number of Votes Accepted"])/1.25)],
+
                 });
-            return L.marker(latlng, {icon: eleven_day});              
+            return L.marker(latlng, {icon: earlyIcon});              
         }       
 };
 
@@ -199,10 +196,19 @@ addControlPlaceholders(map);
 // Popup legend for VCs
 var vclegend = L.control({position: 'topright'});
 vclegend.onAdd = function(map){
-    var div = L.DomUtil.create('container', 'legend2');
+    var div = L.DomUtil.create('container', 'legend2'),
+
+    grades = ["Eleven-Day", "Five-Day"],
+    labels = ["early.svg","late.svg"];
+
+    // loop through our density intervals and generate a label with a colored square for each interval
     div.innerHTML += "<div <span style='position: absolute;top: 2px;font-weight: bold;font-size: 12px;'>Vote Center Type</span></div>" + '<br>'
-	div.innerHTML += "<div <i class='fa fa-building fa-3x' style='color:#575556'></i></div>" + "<span style='font-weight: bold;position: relative;margin-bottom: 5px;'> Five-Day</span>" + '<br>'
-	div.innerHTML += "<div <i class='fa fa-building fa-3x' style='color:#4838cc'></i></div>" + "<span style='font-weight: bold;position: relative;margin-bottom: 5px;'> Eleven-Day</span>" + '<br>'
+    for (var i = 0; i < grades.length; i++) {
+        div.innerHTML +=
+            (" <img src="+ labels[i] +" height='50' width='50' style='margin-top:5px'>") + grades[i] +'<br>';
+    }
+    div.innerHTML += "<div <span style='font-size: 12px; margin-top: -10px;'><br><b>Note</b>: Icon size now<br>reflects the number<br>of votes cast at<br>each Vote Center</span></div>"
+
     return div;
 };
 
@@ -536,7 +542,8 @@ info.addTo(map);
          
     <div>
         <b>Data Source</b>: California Secretary of State VoteCal System. Data by race and ethnicity of all voters are not available from the VoteCal system.<br><hr>
-        <i>The LA County Early Ballot Count Tool was developed by the <a href="https://cid.usc.edu/" style="color:Blue;" target="_blank" rel="noopener noreferrer"> USC Center for Inclusive Democracy</a> in partnership with the California Secretary of State's Office.</i>
+        <i>The LA County Early Ballot Count Tool was developed by the <a href="https://cid.usc.edu/" style="color:Blue;" target="_blank" rel="noopener noreferrer"> USC Center for Inclusive Democracy</a> in partnership with the California Secretary of State's Office.</i><br><hr>
+        <i>This research has been supported by Democracy Fund.</i>
     </div>
     </div>
      
