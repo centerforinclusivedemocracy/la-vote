@@ -54,7 +54,16 @@ To process precinct and vote center voting data for LA county and output data as
 
 ![](https://raw.githubusercontent.com/centerforinclusivedemocracy/la-vote/master/directory_chart.PNG)
 
-There are a number of precincts and vote centers in the voting or allocation data which do not have a match in the applicable shapefile or geojson, as well as some precincts which show more voters than registered voters. The number of locations that are dropped from the data for these reasons is printed out when running the processing script, and it's important to review the number of locations dropped to ensure there are no larger data issues or changes. Below are the warnings printed out of 11/12/2020:
+The data processing scripts serve to:
+- Convert voting data from long to wide format
+- Join voting data with geographic data and/or allocation data
+- Simplify geometries and reduce the number of decimal places in lat/lon coordinates to reduce the final geojson file size
+- Hardcode styling of the data
+- Calculate county totals
+- Remove data with inconsistencies or without matches (see below)
+- Automate the data update process
+
+There are a number of precincts and vote centers in the voting or allocation data which do not have a match in the applicable shapefile or geojson, as well as some precincts which show more voters than registered voters. The number of locations that are dropped from the data for these reasons is printed out when running the processing script, and it's important to review the number of locations dropped to ensure there are no larger data issues or changes. Below are the warnings printed out as of 11/12/2020:
 - Number of precincts with voting data without registered voter data: 18
 - Number of precincts dropped with more voters than registered voters: 128
 - Number of precincts dropped without a valid precinct number: 2
