@@ -44,9 +44,9 @@ Update files are received from the SOS in a .zip file containing 3 separate .csv
 - "3- Count of in-person ballots cast for each vote center with VBM return method_LA.csv": This file contains the total daily number of votes cast by vote center at the time of the data extract and includes the vote center name and address. The data is in long format, with multiple rows breaking out the number of votes accepted at each vote center by date ("Date VPH Created as a result of Votes Cast") and voter county (counties other than Los Angeles appear due to absentee ballots). This file also includes data for the total daily number of VBM, Early, & CVR ballots cast at the time of the data extract broken out by voter county, VBM return method code, and date, where vote center information is null.
 
 Other data files used in data processing which do not change include:
-- A shapefile of all Los Angeles county precincts as of 10/20/2020, provided by the Los Angeles County Registrar.
-- A geojson with geolocated Los Angeles county vote centers as of 10/20/2020, created from a csv with vote center addresses provided by the California Secretary of State.
-- A csv with Los Angeles county vote center allocations as of 10/27/2020, provided by the Los Angeles County Registrar.
+- A shapefile of all Los Angeles county precincts as of 10/20/2020, provided by the Los Angeles County Registrar ("registrar_precincts_4326.shp").
+- A geojson with geolocated Los Angeles county vote centers as of 10/20/2020, created from a csv with vote center addresses provided by the California Secretary of State ("vote_centers_locs.geojson").
+- A csv with Los Angeles county vote center allocations as of 10/27/2020, provided by the Los Angeles County Registrar ("LA Vote Center_allocations_20201027.csv").
 
 ## Data Processing: 
 
