@@ -36,27 +36,30 @@ Within this repository only one subfolder is present (`/data`), housing the subd
 - `la_precincts.geojson`: GeoJSON of LA precinct polygon geometries and voting information from latest update
 - `vote_centers.geojson`: GeoJSON of LA Vote Center point geometries and voting information from latest update
 
-## Data Structure and Processing Script:
+## Data Structure:
 
-Update files are received from the SOS in a .zip file containing 3 separate .csv files.
+Update files are received from the SOS in a .zip file containing 3 separate .csv files:
+- "1- Count of registered voters by precinct.csv": This file contains the total number of registered voters ("# of Active Voters") per precinct at the time of the data extract. "Voter Precinct Number" is the precinct unique identifier and each precinct appears only once in the data.
+- "2- Count of votes cast (broken out by VBM and in-person ballots) by precinct and VBM return method.csv": This file contains the cumulative number of votes cast at the time of the data extract by voting type and return method code per precinct and voter county. The data is in long format, with multiple rows per precinct breaking out the number of votes accepted by Voting Type ("Vote-By-Mail", "In Person Live Ballot", "CVR", & "Early"), VBM Return Method Code ("Mail", "Drop Box", "Vote Center Drop Off", "FAX", "Drop Off Location", "Other", & "Non-Deliverable"), and Voter County (counties other than Los Angeles appear due to absentee ballots).
+- "3- Count of in-person ballots cast for each vote center with VBM return method_LA.csv": This file contains the total daily number of votes cast by vote center at the time of the data extract and includes the vote center name and address. The data is in long format, with multiple rows breaking out the number of votes accepted at each vote center by date ("Date VPH Created as a result of Votes Cast") and voter county (counties other than Los Angeles appear due to absentee ballots). This file also includes data for the total daily number of VBM, Early, & CVR ballots cast at the time of the data extract broken out by voter county, VBM return method code, and date, where vote center information is null.
 
-To process precinct and vote center voting data for LA county and output data as geojsons to be used in CID's LA Vote map, run process_data.py, edited with your file locations for the following variables:
+Other data files used in data processing which do not change include:
+- A shapefile of all Los Angeles county precincts as of 10/20/2020, provided by the Los Angeles County Registrar.
+- A geojson with geolocated Los Angeles county vote centers as of 10/20/2020, created from a csv with vote center addresses provided by the California Secretary of State.
+- A csv with Los Angeles county vote center allocations as of 10/27/2020, provided by the Los Angeles County Registrar.
 
-- precincts_shape (str): File location for precincts shapefile (filename: "registrar_precincts_4326.shp").
-- registered_voters (str): File location for registered voter data (filename: "1- Count of registered voters by precinct.csv").
-- voters (str): File location for registered voter data (filename: "2- Count of votes cast (broken out by VBM and in-person ballots) by precinct.csv").
-- votecenter_gjson (str): File location for vote centers geojson (filename: "vote_centers_locs.geojson").
-- votecenter_voters (str): File location for vote centers voting data (filename: "3- Count of in-person ballots cast for each vote center with VBM return method_LA.csv").
-- votecenter_alloc (str): File location for vote centers allocation data (filename: "LA Vote Center_allocations_20201027.xlsx").
-- output_loc (str): Directory location for output geojson file.
+## Data Processing: 
 
-When processing data, be sure to confirm the number of precincts or vote centers dropped without a match in the applicable shapefile/geojson, which are printed out when running the processing script. For vote centers, there are currently about 20 mismatches expected. If more than that are found, then uncomment the code in line 247 to output the mismatches as a csv and search for similar vote centers with slightly different spellings in vote_centers_locs.geojson, replacing the vote center names in vote_centers_locs.geojson with names in the output csv where close matches are found (names should be very similar and only have differences in formatting, and addresses should be the same). Then rerun the processing code using the updated vote_centers_locs.geojson.
-
-Below is a diagram of the required directory structure:
+To process precinct and vote center voting data for LA county and output data as geojsons to be used in CID's LA Vote map, the below directory structure is required:
 
 ![](https://raw.githubusercontent.com/centerforinclusivedemocracy/la-vote/master/directory_chart.PNG)
 
-## Data processing 
+There are a number of precincts and vote centers in the voting or allocation data which do not have a match in the applicable shapefile or geojson, as well as some precincts which show more voters than registered voters. The number of locations that are dropped from the data for these reasons is printed out when running the processing script, and it's important to review the number of locations dropped to ensure there are no larger data issues or changes. Below are the warnings printed out of 11/12/2020:
+- Number of precincts with voting data without registered voter data: 18
+- Number of precincts dropped with more voters than registered voters: 128
+- Number of precincts dropped without a valid precinct number: 2
+- Number of Vote Centers with voting data without a match: 20
+- Number of Vote Centers with allocation data without a match: 3
 
 To update data on the tool: 
 
