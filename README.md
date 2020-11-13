@@ -63,12 +63,14 @@ The data processing scripts serve to:
 - Remove data with inconsistencies or without matches (see below)
 - Automate the data update process
 
-There are a number of precincts and vote centers in the voting or allocation data which do not have a match in the applicable shapefile or geojson, as well as some precincts which show more voters than registered voters. The number of locations that are dropped from the data for these reasons is printed out when running the processing script, and it's important to review the number of locations dropped to ensure there are no larger data issues or changes. Below are the warnings printed out as of 11/12/2020:
+There are a number of precincts and vote centers in the voting or allocation data which do not have a match in the applicable shapefile or geojson, as well as some precincts which show more voters than registered voters. The number of locations that are dropped from the data for these reasons is printed out when running the processing script, and it's important to review the number of locations dropped to ensure there are no larger data issues or changes. Below are the warnings printed out as of 11/13/2020:
 - Number of precincts with voting data without registered voter data: 18
 - Number of precincts dropped with more voters than registered voters: 128
 - Number of precincts dropped without a valid precinct number: 2
-- Number of Vote Centers with voting data without a match: 20
+- Number of Vote Centers with voting data without a match: 7
 - Number of Vote Centers with allocation data without a match: 3
+
+Vote center voting data does not include complete addresses; therefore vote centers were geolocated using a master file of vote center names and addresses, and voting data is then joined each time it is received with the geolocated vote center data on vote center name. There are a number of inconsistencies in names across the voting and geolocated data (including many vote centers that share the same location, with some additional vote centers in the voting data that are in different rooms of the same building a  geolocated vote center) which cause many vote centers to be ommitted from this join. Many of these mismatches were manually analyzed and vote center names in the geolocated dataset were adjusted accordingly to match the appropriate names in the voting data to allow for more matches. In addition, number of votes and equipment allocations were summed across vote centers that shared the same location and only one vote center for that location was kept. This means some vote center names shown on the map do not reflect data for that exact vote center, but rather for all vote centers that share that address. In the future, these names should be made more general to avoid confusion. Finally, in cases where allocation data is available for some but not all vote centers that share a location, the total equipment allocations shown for that location may be misleading, and in the future should instead be shown as "n/a" or include a note for missing data.  
 
 To update data on the tool: 
 
