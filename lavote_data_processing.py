@@ -260,6 +260,19 @@ def process_votecenters(votecenter_gjson, votecenter_voters, votecenter_alloc, o
     vc_final = merged.merge(vc_alloc, left_on='Vote Location Id', right_on='vote_center_sos_id', how='outer')
     print('Number of Vote Centers with allocation data without a match:', 
         len(vc_final[vc_final['County Id'].isna() & vc_final['Vote Location Name'].isna()]))
+    # combine votes and allocation data for vote centers that share a location and remove all but the first vote center 
+    # to do : fix names when vote center that summed votes are assigned to needs to be made more general
+    # keep track of total number of votes accepted and length of dataset to test after grouping by address
+    total_votes = vc_final.loc[vc_final['Address'].notnull(), '# of Votes accepted'].sum()
+    start_len = len(vc_final) 
+    num_dupes = len(vc_final) - (len(vc_final['Address'].unique())-1)
+    first = lambda x: x.iloc[0]
+    sum_cols = ['# of Votes accepted', 'bmd_allocated', 'ePollBook_Allocated']
+    vc_final = vc_final.groupby('Address', as_index=False).agg({**{col: np.sum for col in sum_cols}, **{col: first for col in vc_final.columns if col not in sum_cols + ["Address"]}})
+    new_total_votes = vc_final['# of Votes accepted'].sum()
+    end_len = len(vc_final)
+    assert total_votes == new_total_votes, "Total number of votes accepted differ after dropping duplicates"
+    assert start_len - end_len == num_dupes, "Wrong number of duplicates deleted"
     # clean up data
     vc_final['Vote Center Type'] = np.where(vc_final['Hours Of Operation'].str.contains('OCTOBER 24'), 'Eleven-Day', 'Five-Day')
     vc_final = vc_final[['Name', 'Address', '# of Votes accepted', 'Vote Center Type', 
@@ -268,9 +281,10 @@ def process_votecenters(votecenter_gjson, votecenter_voters, votecenter_alloc, o
         '# of Votes accepted' : 'Number of Votes Accepted',
         'ePollBook_Allocated' : 'epoll_allocated'
     }, inplace=True)
-    vc_final['Number of Votes Accepted'] = vc_final['Number of Votes Accepted'].fillna(0)
+    vc_final[['Number of Votes Accepted', 'epoll_allocated', 'bmd_allocated']] = vc_final[['Number of Votes Accepted', 'epoll_allocated', 'bmd_allocated']].fillna('n/a')
     vc_final['Name'] = vc_final['Name'].str.title()
     vc_final['size'] = vc_final['size'].str.title()
+    vc_final = gpd.GeoDataFrame(vc_final, geometry='geometry')
     # write to geojson
     today = date.today()
     time = datetime.now().strftime('%I%p')
