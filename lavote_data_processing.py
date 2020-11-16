@@ -201,6 +201,7 @@ def process_precincts(precincts_shape, registered_voters, voters, output_loc, re
         gdf = round_gdf(gdf)
     # append county level data
     gdf = gdf.append({
+        'precinct' : 'Los Angeles',
         'Number of Active Voters' : reg_voters,
         'Total Votes' : voters,
         'Conditional Voter Registration' : cvr,
@@ -209,6 +210,40 @@ def process_precincts(precincts_shape, registered_voters, voters, output_loc, re
         'Percent Drop Box' : pct_db,
         'Percent Poll' : pct_poll,
         'Percent Vote Center Drop Off' : pct_do}, ignore_index=True)
+    # save date/time from zip filename
+    date_time = [files for files in os.listdir('data/most_recent') if '.zip' in files][0]
+    time = date_time.split('_')[1].split('.')[0]
+    if len(time) < 6:
+        time = '0' + time
+    elif len(time) > 6:
+        time = time[:3] + 'pm'
+    date_time = date_time.split('_')[0] + time
+    date_time = datetime.strptime(date_time, '%m%d%Y%I%M%p')
+    # save county level stats to csv
+    data = gdf.tail(1)[['precinct', 'Number of Active Voters', 'Total Votes', 'Conditional Voter Registration']]
+    cols = ['Number of Active Voters', 'Total Votes', 'Conditional Voter Registration']
+    for col in cols:
+        data[col] = data[col].str.replace(',', '').astype('int64')
+    data['Date/Time'] = date_time
+    county_sum = pd.read_csv('data/county_level_summary.csv')
+    county_sum = county_sum.append(data)
+    county_sum.to_csv('data/county_level_summary.csv', index=False)
+    # print county summary stats
+    new_reg_voters = county_sum.iloc[-1]['Number of Active Voters'] - county_sum.iloc[-2]['Number of Active Voters']
+    new_votes = county_sum.iloc[-1]['Total Votes'] - county_sum.iloc[-2]['Total Votes']
+    new_cvr = county_sum.iloc[-1]['Conditional Voter Registration'] - county_sum.iloc[-2]['Conditional Voter Registration']
+    print()
+    print('The number of registered voters changed by:', new_reg_voters)
+    print('The number of total votes changed by:', new_votes)
+    print('The number of CVRs changed by:', new_cvr)
+    if new_cvr > new_votes:
+        print('WARNING: The increase in CVRs is greater than the increase in total votes.')
+    if new_reg_voters < 0:
+        print('WARNING: The total number of registered voters decreased.')
+    if new_votes < 0:
+        print('WARNING: The total number of votes decreased.')
+    if new_cvr < 0:
+        print('WARNING: The total number of CVRs decreased.')
     # write to geojson with date and time in filename
     today = date.today()
     time = datetime.now().strftime('%I%p')
@@ -253,6 +288,7 @@ def process_votecenters(votecenter_gjson, votecenter_voters, votecenter_alloc, o
     vc.loc[vc['Vote Location Name'].str.contains('DOROTHY CHANDLER'), 'Vote Location Name'] = vc['Vote Location Name'].str.replace('CHANDLER', 'CHANDLER,' )
     # join geojson and voter data
     merged = vc_gdf.merge(vc, left_on='Name', right_on='Vote Location Name', how='outer')
+    print()
     print("Number of Vote Centers with voting data without a match:", len(merged[merged['Address'].isna()]))
     # code to output mismatches to csv if vote center names need to be cleaned
     ## vc_mismatches = merged.loc[merged['Address'].isna()].to_csv('data/testing/vc_mismatches.csv')
