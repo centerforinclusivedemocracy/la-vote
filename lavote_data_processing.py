@@ -70,6 +70,8 @@ def process_precincts(precincts_shape, registered_voters, voters, output_loc, re
     prec = gpd.read_file(precincts_shape)
     reg = pd.read_csv(registered_voters)
     vote = pd.read_csv(voters)
+    # save time of update
+    date_time = vote.loc[0, 'Date/Time Extract Run']
     # break out VBM data by mail, drop box, and vote center drop box
     mail = vote.loc[vote['VBM Return Method Code'] == 'Mail']
     mail = mail.groupby(['VPH HomePrecinct Number']).sum().reset_index()
@@ -210,15 +212,6 @@ def process_precincts(precincts_shape, registered_voters, voters, output_loc, re
         'Percent Drop Box' : pct_db,
         'Percent Poll' : pct_poll,
         'Percent Vote Center Drop Off' : pct_do}, ignore_index=True)
-    # save date/time from zip filename
-    date_time = [files for files in os.listdir('data/most_recent') if '.zip' in files][0]
-    time = date_time.split('_')[1].split('.')[0]
-    if len(time) < 6:
-        time = '0' + time
-    elif len(time) > 6:
-        time = time[:3] + 'pm'
-    date_time = date_time.split('_')[0] + time
-    date_time = datetime.strptime(date_time, '%m%d%Y%I%M%p')
     # save county level stats to csv
     data = gdf.tail(1)[['precinct', 'Number of Active Voters', 'Total Votes', 'Conditional Voter Registration']]
     cols = ['Number of Active Voters', 'Total Votes', 'Conditional Voter Registration']
